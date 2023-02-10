@@ -1,0 +1,28 @@
+
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: abcde12345
+    url: jdbc:mysql://127.0.0.1:3306/im-?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
+    username: root
+
+
+# logger配置
+logging:
+  config: classpath:logback-spring.xml
+
+server:
+  port: 8000
+
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapperxml/*/*.xml
+  global-config:
+    db-config:
+      update-strategy: NOT_EMPTY
+
