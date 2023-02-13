@@ -228,4 +228,26 @@ public class FriendshipImpl implements IFriendshipService {
 
         return ResponseVO.successResponse("成功删除" + update + "条好友");
     }
+
+    @Override
+    public ResponseVO<List<ImFriendshipEntity>> getAllFriendShip(GetAllFriendShipReq req) {
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id",req.getAppId());
+        query.eq("from_id",req.getFromId());
+        return ResponseVO.successResponse(this.friendshipMapper.selectList(query));
+    }
+
+    @Override
+    public ResponseVO<ImFriendshipEntity> getFriendShip(GetFriendShipReq req) {
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id",req.getAppId());
+        query.eq("from_id",req.getFromId());
+        query.eq("to_id",req.getToId());
+
+        ImFriendshipEntity entity = this.friendshipMapper.selectOne(query);
+        if(entity == null){
+            return ResponseVO.errorResponse(FriendShipErrorCodeEnum.RELATIONSHIP_IS_NOT_EXIST);
+        }
+        return ResponseVO.successResponse(entity);
+    }
 }

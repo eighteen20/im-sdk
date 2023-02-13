@@ -1,8 +1,11 @@
 package cn.ctrlcv.im.serve.friendship.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
+
+import java.util.List;
 
 /**
  * Class Name: IFriendshipService
@@ -64,5 +67,21 @@ public interface IFriendshipService {
      * @return 无
      */
     ResponseVO<String> deleteAllFriend(DeleteAllFriendshipReq req);
+
+    /**
+     * 拉取所有好友信息
+     *
+     * @param req {@link GetAllFriendShipReq}
+     * @return {@link List}<{@link ImFriendshipEntity}>
+     */
+    ResponseVO<List<ImFriendshipEntity>> getAllFriendShip(GetAllFriendShipReq req);
+
+    /**
+     * 拉取好友信息
+     *
+     * @param req {@link GetFriendShipReq}
+     * @return {@link ImFriendshipEntity}
+     */
+    ResponseVO<ImFriendshipEntity> getFriendShip(GetFriendShipReq req);
 
 }

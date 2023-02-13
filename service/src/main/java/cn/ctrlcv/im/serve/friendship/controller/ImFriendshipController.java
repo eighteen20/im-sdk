@@ -1,11 +1,14 @@
 package cn.ctrlcv.im.serve.friendship.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Class Name: ImFriendshipController
@@ -73,7 +76,7 @@ public class ImFriendshipController {
      * @param appId 应用ID
      * @return {@link ResponseVO}
      */
-    @PutMapping("/deleteFriend")
+    @DeleteMapping("/deleteFriend")
     public ResponseVO<?> deleteFriend(@RequestBody @Validated DeleteFriendshipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.deleteFriend(req);
@@ -86,10 +89,37 @@ public class ImFriendshipController {
      * @param appId 应用ID
      * @return {@link ResponseVO}
      */
-    @PutMapping("/deleteAllFriend")
+    @DeleteMapping("/deleteAllFriend")
     public ResponseVO<?> deleteAllFriend(@RequestBody @Validated DeleteAllFriendshipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.deleteAllFriend(req);
+    }
+
+    /**
+     *拉取好友信息
+     *
+     * @param req {@link GetFriendShipReq}
+     * @param appId 应用ID
+     * @return {@link ImFriendshipEntity}
+     */
+    @GetMapping("/getFriend")
+    public ResponseVO<ImFriendshipEntity> getFriend(@RequestBody @Validated GetFriendShipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.getFriendShip(req);
+    }
+
+
+    /**
+     *拉取所有好友信息
+     *
+     * @param req {@link GetAllFriendShipReq}
+     * @param appId 应用ID
+     * @return {@link List}<{@link ImFriendshipEntity}>
+     */
+    @GetMapping("/getAllFriend")
+    public ResponseVO<List<ImFriendshipEntity>> getAllFriend(@RequestBody @Validated GetAllFriendShipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.getAllFriendShip(req);
     }
 
 }
