@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipMapper">
+  <resultMap id="BaseResultMap" type="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity">
+    <!--@mbg.generated-->
+    <!--@Table im_friendship-->
+    <id column="app_id" jdbcType="INTEGER" property="appId" />
+    <id column="from_id" jdbcType="VARCHAR" property="fromId" />
+    <id column="to_id" jdbcType="VARCHAR" property="toId" />
+    <result column="remake" jdbcType="VARCHAR" property="remake" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="black" jdbcType="TINYINT" property="black" />
+    <result column="black_sequence" jdbcType="VARCHAR" property="blackSequence" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="friend_sequence" jdbcType="BIGINT" property="friendSequence" />
+    <result column="add_source" jdbcType="VARCHAR" property="addSource" />
+    <result column="extra" jdbcType="VARCHAR" property="extra" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    app_id, from_id, to_id, remake, `status`, black, black_sequence, create_time, friend_sequence, 
+    add_source, extra
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from im_friendship
+    where app_id = #{appId,jdbcType=INTEGER}
+      and from_id = #{fromId,jdbcType=VARCHAR}
+      and to_id = #{toId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    <!--@mbg.generated-->
+    delete from im_friendship
+    where app_id = #{appId,jdbcType=INTEGER}
+      and from_id = #{fromId,jdbcType=VARCHAR}
+      and to_id = #{toId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity">
+    <!--@mbg.generated-->
+    insert into im_friendship (app_id, from_id, to_id, 
+      remake, `status`, black, 
+      black_sequence, create_time, friend_sequence, 
+      add_source, extra)
+    values (#{appId,jdbcType=INTEGER}, #{fromId,jdbcType=VARCHAR}, #{toId,jdbcType=VARCHAR}, 
+      #{remake,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{black,jdbcType=TINYINT}, 
+      #{blackSequence,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{friendSequence,jdbcType=BIGINT}, 
+      #{addSource,jdbcType=VARCHAR}, #{extra,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity">
+    <!--@mbg.generated-->
+    insert into im_friendship
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="appId != null">
+        app_id,
+      </if>
+      <if test="fromId != null">
+        from_id,
+      </if>
+      <if test="toId != null">
+        to_id,
+      </if>
+      <if test="remake != null">
+        remake,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="black != null">
+        black,
+      </if>
+      <if test="blackSequence != null">
+        black_sequence,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="friendSequence != null">
+        friend_sequence,
+      </if>
+      <if test="addSource != null">
+        add_source,
+      </if>
+      <if test="extra != null">
+        extra,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="appId != null">
+        #{appId,jdbcType=INTEGER},
+      </if>
+      <if test="fromId != null">
+        #{fromId,jdbcType=VARCHAR},
+      </if>
+      <if test="toId != null">
+        #{toId,jdbcType=VARCHAR},
+      </if>
+      <if test="remake != null">
+        #{remake,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="black != null">
+        #{black,jdbcType=TINYINT},
+      </if>
+      <if test="blackSequence != null">
+        #{blackSequence,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="friendSequence != null">
+        #{friendSequence,jdbcType=BIGINT},
+      </if>
+      <if test="addSource != null">
+        #{addSource,jdbcType=VARCHAR},
+      </if>
+      <if test="extra != null">
+        #{extra,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity">
+    <!--@mbg.generated-->
+    update im_friendship
+    <set>
+      <if test="remake != null">
+        remake = #{remake,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="black != null">
+        black = #{black,jdbcType=TINYINT},
+      </if>
+      <if test="blackSequence != null">
+        black_sequence = #{blackSequence,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="friendSequence != null">
+        friend_sequence = #{friendSequence,jdbcType=BIGINT},
+      </if>
+      <if test="addSource != null">
+        add_source = #{addSource,jdbcType=VARCHAR},
+      </if>
+      <if test="extra != null">
+        extra = #{extra,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where app_id = #{appId,jdbcType=INTEGER}
+      and from_id = #{fromId,jdbcType=VARCHAR}
+      and to_id = #{toId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity">
+    <!--@mbg.generated-->
+    update im_friendship
+    set remake = #{remake,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=TINYINT},
+      black = #{black,jdbcType=TINYINT},
+      black_sequence = #{blackSequence,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      friend_sequence = #{friendSequence,jdbcType=BIGINT},
+      add_source = #{addSource,jdbcType=VARCHAR},
+      extra = #{extra,jdbcType=VARCHAR}
+    where app_id = #{appId,jdbcType=INTEGER}
+      and from_id = #{fromId,jdbcType=VARCHAR}
+      and to_id = #{toId,jdbcType=VARCHAR}
+  </update>
+</mapper>
