@@ -1,9 +1,7 @@
 package cn.ctrlcv.im.serve.friendship.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
-import cn.ctrlcv.im.serve.friendship.model.request.AddFriendReq;
-import cn.ctrlcv.im.serve.friendship.model.request.ImportFriendshipReq;
-import cn.ctrlcv.im.serve.friendship.model.request.UpdateFriendReq;
+import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import org.springframework.validation.annotation.Validated;
@@ -44,12 +42,12 @@ public class ImFriendshipController {
     /**
      * 添加好友
      *
-     * @param req {@link AddFriendReq}
+     * @param req {@link AddFriendshipReq}
      * @param appId 应用ID
      * @return {@link ResponseVO}
      */
     @PostMapping("/addFriend")
-    public ResponseVO<?> addFriend(@RequestBody @Validated AddFriendReq req, Integer appId){
+    public ResponseVO<?> addFriend(@RequestBody @Validated AddFriendshipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.addFriend(req);
     }
@@ -57,15 +55,41 @@ public class ImFriendshipController {
     /**
      * 修改好友
      *
-     * @param req {@link AddFriendReq}
+     * @param req {@link AddFriendshipReq}
      * @param appId 应用ID
      * @return {@link ResponseVO}
      */
     @PutMapping("/updateFriend")
-    public ResponseVO<?> updateFriend(@RequestBody @Validated UpdateFriendReq req, Integer appId){
+    public ResponseVO<?> updateFriend(@RequestBody @Validated UpdateFriendshipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.updateFriend(req);
     }
 
+
+    /**
+     * 删除好友
+     *
+     * @param req {@link AddFriendshipReq}
+     * @param appId 应用ID
+     * @return {@link ResponseVO}
+     */
+    @PutMapping("/deleteFriend")
+    public ResponseVO<?> deleteFriend(@RequestBody @Validated DeleteFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.deleteFriend(req);
+    }
+
+    /**
+     * 删除所有好友
+     *
+     * @param req {@link AddFriendshipReq}
+     * @param appId 应用ID
+     * @return {@link ResponseVO}
+     */
+    @PutMapping("/deleteAllFriend")
+    public ResponseVO<?> deleteAllFriend(@RequestBody @Validated DeleteAllFriendshipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.deleteAllFriend(req);
+    }
 
 }

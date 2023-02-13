@@ -1,10 +1,7 @@
 package cn.ctrlcv.im.serve.friendship.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
-import cn.ctrlcv.im.serve.friendship.model.request.AddFriendReq;
-import cn.ctrlcv.im.serve.friendship.model.request.FriendDTO;
-import cn.ctrlcv.im.serve.friendship.model.request.ImportFriendshipReq;
-import cn.ctrlcv.im.serve.friendship.model.request.UpdateFriendReq;
+import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 
 /**
@@ -27,10 +24,10 @@ public interface IFriendshipService {
     /**
      * 添加好友（）
      *
-     * @param req {@link AddFriendReq}
+     * @param req {@link AddFriendshipReq}
      * @return 无
      */
-    ResponseVO<?> addFriend(AddFriendReq req);
+    ResponseVO<?> addFriend(AddFriendshipReq req);
 
 
     /**
@@ -47,9 +44,25 @@ public interface IFriendshipService {
     /**
      * 添加好友（无需验证）
      *
-     * @param req {@link UpdateFriendReq}
+     * @param req {@link UpdateFriendshipReq}
      * @return 无
      */
-    ResponseVO<?> updateFriend(UpdateFriendReq req);
+    ResponseVO<?> updateFriend(UpdateFriendshipReq req);
+
+    /**
+     * 删除好友
+     *
+     * @param req {@link DeleteFriendshipReq}
+     * @return 无
+     */
+    ResponseVO<?> deleteFriend(DeleteFriendshipReq req);
+
+    /**
+     * 删除所有好友
+     *
+     * @param req {@link DeleteFriendshipReq}
+     * @return 无
+     */
+    ResponseVO<String> deleteAllFriend(DeleteAllFriendshipReq req);
 
 }
