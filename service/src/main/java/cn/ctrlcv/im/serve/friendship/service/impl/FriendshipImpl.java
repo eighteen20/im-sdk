@@ -280,7 +280,7 @@ public class FriendshipImpl implements IFriendshipService {
                 respList.add(resp);
             }
 
-            return ResponseVO.successResponse(respList);
         }
+        return ResponseVO.successResponse(respList);
     }
 }
