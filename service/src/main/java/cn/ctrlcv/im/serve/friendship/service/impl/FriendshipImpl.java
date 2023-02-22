@@ -1,12 +1,14 @@
 package cn.ctrlcv.im.serve.friendship.service.impl;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.enums.CheckFriendShipTypeEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.FriendShipStatusEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipMapper;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
+import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Class Name: FriendshipImpl
@@ -183,7 +188,7 @@ public class FriendshipImpl implements IFriendshipService {
                 .eq(ImFriendshipEntity::getFromId, fromId);
 
         int update = this.friendshipMapper.update(null, updateWrapper);
-        if(update == 1){
+        if (update == 1) {
             return ResponseVO.successResponse();
         }
         return ResponseVO.errorResponse();
@@ -232,22 +237,50 @@ public class FriendshipImpl implements IFriendshipService {
     @Override
     public ResponseVO<List<ImFriendshipEntity>> getAllFriendShip(GetAllFriendShipReq req) {
         QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
-        query.eq("app_id",req.getAppId());
-        query.eq("from_id",req.getFromId());
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
         return ResponseVO.successResponse(this.friendshipMapper.selectList(query));
     }
 
     @Override
     public ResponseVO<ImFriendshipEntity> getFriendShip(GetFriendShipReq req) {
         QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
-        query.eq("app_id",req.getAppId());
-        query.eq("from_id",req.getFromId());
-        query.eq("to_id",req.getToId());
+        query.eq("app_id", req.getAppId());
+        query.eq("from_id", req.getFromId());
+        query.eq("to_id", req.getToId());
 
         ImFriendshipEntity entity = this.friendshipMapper.selectOne(query);
-        if(entity == null){
+        if (entity == null) {
             return ResponseVO.errorResponse(FriendShipErrorCodeEnum.RELATIONSHIP_IS_NOT_EXIST);
         }
         return ResponseVO.successResponse(entity);
+    }
+
+    @Override
+    public ResponseVO<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req) {
+
+        Map<String, Integer> map = req.getToIds().stream().collect(Collectors.toMap(Function.identity(), s -> 0));
+
+        List<CheckFriendShipResp> respList = new ArrayList<>(10);
+
+        if (CheckFriendShipTypeEnum.SINGLE.getType() == req.getCheckType()) {
+            // 检验对方是不是在好友列表中
+            respList = this.friendshipMapper.getSingleFriendship(req);
+        } else {
+            respList = this.friendshipMapper.getBothFriendship(req);
+        }
+
+        Map<String, Integer> collect = respList.stream().collect(Collectors.toMap(CheckFriendShipResp::getToId, CheckFriendShipResp::getStatus));
+        for (String toId : map.keySet()) {
+            if (!collect.containsKey(toId)) {
+                CheckFriendShipResp resp = new CheckFriendShipResp();
+                resp.setFromId(req.getFromId());
+                resp.setToId(toId);
+                resp.setStatus(map.get(toId));
+                respList.add(resp);
+            }
+
+            return ResponseVO.successResponse(respList);
+        }
     }
 }

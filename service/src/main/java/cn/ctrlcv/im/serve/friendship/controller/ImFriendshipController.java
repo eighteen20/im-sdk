@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.friendship.controller;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
+import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import org.springframework.validation.annotation.Validated;
@@ -120,6 +121,20 @@ public class ImFriendshipController {
     public ResponseVO<List<ImFriendshipEntity>> getAllFriend(@RequestBody @Validated GetAllFriendShipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.getAllFriendShip(req);
+    }
+
+
+    /**
+     *校验好友关系
+     *
+     * @param req {@link GetFriendShipReq}
+     * @param appId 应用ID
+     * @return {@link CheckFriendShipResp}
+     */
+    @GetMapping("/checkFriend")
+    public ResponseVO<CheckFriendShipResp> checkFriend(@RequestBody @Validated CheckFriendShipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.checkFriendship(req);
     }
 
 }

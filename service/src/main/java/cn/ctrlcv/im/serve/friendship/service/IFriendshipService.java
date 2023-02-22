@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.friendship.service;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
+import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
 
 import java.util.List;
@@ -83,5 +84,13 @@ public interface IFriendshipService {
      * @return {@link ImFriendshipEntity}
      */
     ResponseVO<ImFriendshipEntity> getFriendShip(GetFriendShipReq req);
+
+    /**
+     * 校验好友关系
+     *
+     * @param req {@link CheckFriendShipReq}
+     * @return {@link CheckFriendShipResp}
+     */
+    ResponseVO<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req);
 
 }
