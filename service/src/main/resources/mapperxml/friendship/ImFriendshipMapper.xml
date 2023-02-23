@@ -34,6 +34,7 @@
     <select id="getSingleFriendship" resultType="cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp">
         select from_id, to_id, IF(status = 1, 1, 0) `status`
         from im_friendship where from_id = #{fromId}
+        and app_id = #{appId}
                              and to_id in
         <foreach collection="toIds" index="index" item="id" separator="," close=")" open="(">
             #{id}
@@ -52,14 +53,52 @@
                        end
                    )
         from (select from_id, to_id, IF(status = 1, 1, 0) `status`
-              from im_friendship where from_id = #{fromId}
+              from im_friendship where from_id = #{fromId} and app_id = #{appId}
                                    and to_id in <foreach collection="toIds" index="index" item="id" separator=","
                                                          close=")" open="(">
         #{id}
     </foreach>) as a
                   inner join
     (select from_id, to_id, IF(status = 1, 1, 0) `status`
+     from im_friendship where to_id = #{fromId} and app_id = #{appId}
+        and from_id in <foreach collection="toIds" index="index" item="id" separator="," close=")"
+                                                  open="(">
+        #{id}
+    </foreach>) as b on a.from_id = b.to_id AND a.to_id = b.from_id
+    </select>
+
+    <select id="getSingleFriendShipBlack" resultType="cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp">
+        select from_id, to_id, IF(black = 1, 1, 0) `status`
+        from im_friendship where from_id = #{fromId}
+        and app_id = #{appId}
+        and to_id in
+        <foreach collection="toIds" index="index" item="id" separator="," close=")" open="(">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="getBothFriendShipBlack" resultType="cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp">
+        select a.from_id,
+               a.to_id,
+               (
+                   case
+                       when a.`status` = 1 and b.`status` = 1 then 1
+                       when a.`status` = 1 and b.`status` != 1 then 2
+                       when a.`status` != 1 and b.`status` = 1 then 3
+                       when a.`status` != 1 and b.`status` != 1 then 4
+                       end
+                   )
+        from (select from_id, to_id, IF(black = 1, 1, 0) `status`
+              from im_friendship where from_id = #{fromId}
+                                   and app_id = #{appId}
+                                   and to_id in <foreach collection="toIds" index="index" item="id" separator=","
+                                                         close=")" open="(">
+        #{id}
+    </foreach>) as a
+                  inner join
+    (select from_id, to_id, IF(black = 1, 1, 0) `status`
      from im_friendship where to_id = #{fromId}
+                          and app_id = #{appId}
                           and from_id in <foreach collection="toIds" index="index" item="id" separator="," close=")"
                                                   open="(">
         #{id}

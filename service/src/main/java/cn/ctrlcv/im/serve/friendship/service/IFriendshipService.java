@@ -93,4 +93,27 @@ public interface IFriendshipService {
      */
     ResponseVO<CheckFriendShipResp> checkFriendship(CheckFriendShipReq req);
 
+    /**
+     * 添加黑名单
+     *
+     * @param req {@link AddBlackReq}
+     * @return 无
+     */
+    ResponseVO<?> addBlack(AddBlackReq req);
+
+    /**
+     * 将好友移除黑名单
+     *
+     * @param req {@link DeleteBlackReq}
+     * @return 无
+     */
+    ResponseVO<?> deleteBlack(DeleteBlackReq req);
+
+     /**
+     * 检验好友黑名单关系
+     *
+     * @param req {@link CheckFriendShipReq}
+     * @return {@link CheckFriendShipResp}
+     */
+    ResponseVO<CheckFriendShipResp> checkBlack(CheckFriendShipReq req);
 }

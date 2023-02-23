@@ -31,4 +31,20 @@ public interface ImFriendshipMapper extends BaseMapper<ImFriendshipEntity> {
      */
     List<CheckFriendShipResp> getBothFriendship(CheckFriendShipReq req);
 
+    /**
+     * 查询单向的黑名单关系
+     *
+     * @param req {@link CheckFriendShipReq}
+     * @return {@link List}<{@link CheckFriendShipResp}>
+     */
+    List<CheckFriendShipResp> getSingleFriendShipBlack(CheckFriendShipReq req);
+
+
+    /**
+     * 查询双向的黑名单关系
+     *
+     * @param req {@link CheckFriendShipReq}
+     * @return {@link List}<{@link CheckFriendShipResp}>
+     */
+    List<CheckFriendShipResp> getBothFriendShipBlack(CheckFriendShipReq req);
 }

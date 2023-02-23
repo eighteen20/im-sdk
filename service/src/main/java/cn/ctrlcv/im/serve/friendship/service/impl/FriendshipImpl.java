@@ -283,4 +283,105 @@ public class FriendshipImpl implements IFriendshipService {
         }
         return ResponseVO.successResponse(respList);
     }
+
+    @Override
+    public ResponseVO<?> addBlack(AddBlackReq req) {
+        ResponseVO<ImUserDataEntity> fromInfo = this.userService.getSingleUserInfo(req.getFromId(), req.getAppId());
+        if (!fromInfo.isOk()) {
+            return fromInfo;
+        }
+
+        ResponseVO<ImUserDataEntity> toInfo = this.userService.getSingleUserInfo(req.getToId(), req.getAppId());
+        if (!toInfo.isOk()) {
+            return fromInfo;
+        }
+
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id",req.getAppId());
+        query.eq("from_id",req.getFromId());
+        query.eq("to_id",req.getToId());
+
+        ImFriendshipEntity fromItem = this.friendshipMapper.selectOne(query);
+
+        if(fromItem == null){
+            // 走添加逻辑。
+            fromItem = new ImFriendshipEntity();
+            fromItem.setFromId(req.getFromId());
+            fromItem.setToId(req.getToId());
+            fromItem.setAppId(req.getAppId());
+            fromItem.setBlack(FriendShipStatusEnum.BLACK_STATUS_BLACKED.getCode());
+            fromItem.setCreateTime(System.currentTimeMillis());
+            int insert = this.friendshipMapper.insert(fromItem);
+            if(insert != 1){
+                return ResponseVO.errorResponse(FriendShipErrorCodeEnum.ADD_FRIEND_ERROR);
+            }
+
+        } else {
+            //如果存在则判断状态，如果是拉黑，则提示已拉黑，如果是未拉黑，则修改状态
+            if(fromItem.getBlack() != null && fromItem.getBlack() == FriendShipStatusEnum.BLACK_STATUS_BLACKED.getCode()){
+                return ResponseVO.errorResponse(FriendShipErrorCodeEnum.FRIEND_IS_BLACK);
+            } else {
+
+                ImFriendshipEntity update = new ImFriendshipEntity();
+                update.setBlack(FriendShipStatusEnum.BLACK_STATUS_BLACKED.getCode());
+                int result = this.friendshipMapper.update(update, query);
+                if(result != 1){
+                    return ResponseVO.errorResponse(FriendShipErrorCodeEnum.ADD_BLACK_ERROR);
+                }
+
+            }
+
+        }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<?> deleteBlack(DeleteBlackReq req) {
+        QueryWrapper<ImFriendshipEntity> queryFrom = new QueryWrapper<>();
+        queryFrom.eq("from_id", req.getFromId());
+        queryFrom.eq("app_id", req.getAppId());
+        queryFrom.eq("to_id", req.getToId());
+        ImFriendshipEntity fromItem = this.friendshipMapper.selectOne(queryFrom);
+        if (fromItem.getBlack() != null && fromItem.getBlack() == FriendShipStatusEnum.BLACK_STATUS_NORMAL.getCode()) {
+            throw new ApplicationException(FriendShipErrorCodeEnum.FRIEND_IS_NOT_YOUR_BLACK);
+        }
+
+        ImFriendshipEntity update = new ImFriendshipEntity();
+        update.setBlack(FriendShipStatusEnum.BLACK_STATUS_NORMAL.getCode());
+        this.friendshipMapper.update(update, queryFrom);
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<CheckFriendShipResp> checkBlack(CheckFriendShipReq req) {
+        Map<String, Integer> toIdMap
+                = req.getToIds().stream().collect(Collectors
+                .toMap(Function.identity(), s -> 0));
+        List<CheckFriendShipResp> result;
+
+        if (req.getCheckType() == CheckFriendShipTypeEnum.SINGLE.getType()) {
+            result = this.friendshipMapper.getSingleFriendShipBlack(req);
+        } else {
+            result = this.friendshipMapper.getBothFriendShipBlack(req);
+        }
+
+        Map<String, Integer> collect = result.stream()
+                .collect(Collectors
+                        .toMap(CheckFriendShipResp::getToId,
+                                CheckFriendShipResp::getStatus));
+        for (String toId:
+                toIdMap.keySet()) {
+            if(!collect.containsKey(toId)){
+                CheckFriendShipResp checkFriendShipResp = new CheckFriendShipResp();
+                checkFriendShipResp.setToId(toId);
+                checkFriendShipResp.setFromId(req.getFromId());
+                checkFriendShipResp.setStatus(toIdMap.get(toId));
+                result.add(checkFriendShipResp);
+            }
+        }
+
+        return ResponseVO.successResponse(result);
+    }
 }

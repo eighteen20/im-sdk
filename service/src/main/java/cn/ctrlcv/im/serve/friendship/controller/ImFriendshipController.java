@@ -137,4 +137,44 @@ public class ImFriendshipController {
         return this.friendshipService.checkFriendship(req);
     }
 
+
+    /**
+     * 添加黑名单
+     *
+     * @param req {@link AddBlackReq}
+     * @param appId 应用ID
+     * @return 无
+     */
+    @PostMapping("/addBlack")
+    public ResponseVO<?> addBlack(@RequestBody @Validated AddBlackReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.addBlack(req);
+    }
+
+    /**
+     * 将好友移除黑名单
+     *
+     * @param req {@link DeleteBlackReq}
+     * @param appId 应用ID
+     * @return 无
+     */
+    @DeleteMapping("/deleteBlack")
+    public ResponseVO<?> deleteBlack(@RequestBody @Validated DeleteBlackReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.deleteBlack(req);
+    }
+
+    /**
+     * 检验好友黑名单关系
+     *
+     * @param req {@link CheckFriendShipReq}
+     * @param appId 应用ID
+     * @return {@link CheckFriendShipResp}
+     */
+    @GetMapping("/checkBlack")
+    public ResponseVO<CheckFriendShipResp> checkBlack(@RequestBody @Validated CheckFriendShipReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.checkBlack(req);
+    }
+
 }
