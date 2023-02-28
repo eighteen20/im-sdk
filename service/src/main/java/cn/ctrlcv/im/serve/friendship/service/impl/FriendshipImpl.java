@@ -1,18 +1,22 @@
 package cn.ctrlcv.im.serve.friendship.service.impl;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.enums.AllowFriendTypeEnum;
 import cn.ctrlcv.im.common.enums.CheckFriendShipTypeEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.FriendShipStatusEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipMapper;
+import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipRequestMapper;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
 import cn.ctrlcv.im.serve.friendship.model.response.ImportFriendShipResp;
+import cn.ctrlcv.im.serve.friendship.service.IFriendshipRequestService;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.service.IUserService;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -39,9 +43,12 @@ public class FriendshipImpl implements IFriendshipService {
     private final ImFriendshipMapper friendshipMapper;
     private final IUserService userService;
 
-    public FriendshipImpl(ImFriendshipMapper friendshipMapper, IUserService userService) {
+    private final IFriendshipRequestService friendshipRequestService;
+
+    public FriendshipImpl(ImFriendshipMapper friendshipMapper, IUserService userService, IFriendshipRequestService friendshipRequestService) {
         this.friendshipMapper = friendshipMapper;
         this.userService = userService;
+        this.friendshipRequestService = friendshipRequestService;
     }
 
     public static final int IMPORT_MAX_NUMBER_OF_FRIENDSHIP = 100;
@@ -93,8 +100,17 @@ public class FriendshipImpl implements IFriendshipService {
         }
 
         ImUserDataEntity data = toInfo.getData();
+        if (ObjectUtil.isNotNull(data.getFriendAllowType()) && data.getFriendAllowType() == AllowFriendTypeEnum.NOT_NEED.getCode()) {
+            return this.doAddFriend(req.getFromId(), req.getToItem(), req.getAppId());
+        } else {
+            // 好友申请流程
+            ResponseVO<?> vo = this.friendshipRequestService.addFriendshipRequest(req.getFromId(), req.getToItem(), req.getAppId());
+            if (!vo.isOk()) {
+                return vo;
+            }
+        }
 
-        return this.doAddFriend(req.getFromId(), req.getToItem(), req.getAppId());
+        return ResponseVO.successResponse();
 
     }
 
@@ -150,6 +166,25 @@ public class FriendshipImpl implements IFriendshipService {
                 }
             }
 
+        }
+
+        QueryWrapper<ImFriendshipEntity> toQuery = new QueryWrapper<>();
+        toQuery.eq("app_id", appId);
+        toQuery.eq("from_id", dto.getToId());
+        toQuery.eq("to_id", fromId);
+        ImFriendshipEntity toItem = this.friendshipMapper.selectOne(toQuery);
+        if (ObjectUtil.isNull(toItem)) {
+            toItem = new ImFriendshipEntity();
+            toItem.setAppId(appId);
+            BeanUtils.copyProperties(dto, toItem);
+            toItem.setFromId(dto.getToId());
+            toItem.setToId(fromId);
+            toItem.setStatus(FriendShipStatusEnum.FRIEND_STATUS_NORMAL.getCode());
+            toItem.setCreateTime(System.currentTimeMillis());
+            int insert = this.friendshipMapper.insert(toItem);
+            if (insert != 1) {
+                return ResponseVO.errorResponse(FriendShipErrorCodeEnum.ADD_FRIEND_ERROR);
+            }
         }
 
         return ResponseVO.successResponse();
