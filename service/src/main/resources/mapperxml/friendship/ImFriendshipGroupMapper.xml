@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipGroupMapper">
+  <resultMap id="BaseResultMap" type="cn.ctrlcv.im.serve.friendship.dao.ImFriendshipGroupEntity">
+    <!--@mbg.generated-->
+    <!--@Table im_friendship_group-->
+    <id column="group_id" jdbcType="BIGINT" property="groupId" />
+    <result column="from_id" jdbcType="VARCHAR" property="fromId" />
+    <result column="app_id" jdbcType="INTEGER" property="appId" />
+    <result column="group_name" jdbcType="VARCHAR" property="groupName" />
+    <result column="sequence" jdbcType="BIGINT" property="sequence" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="del_flag" jdbcType="INTEGER" property="delFlag" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    group_id, from_id, app_id, group_name, `sequence`, create_time, update_time, del_flag
+  </sql>
+</mapper>
