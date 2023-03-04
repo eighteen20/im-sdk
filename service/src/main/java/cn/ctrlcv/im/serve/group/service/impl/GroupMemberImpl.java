@@ -8,6 +8,7 @@ import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMemberMapper;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
 import cn.ctrlcv.im.serve.group.model.request.ImportGroupMemberReq;
+import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 import cn.ctrlcv.im.serve.group.model.resp.ImportGroupMemberResp;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
@@ -127,5 +128,32 @@ public class GroupMemberImpl implements IGroupMemberService {
         }
 
         return ResponseVO.errorResponse(GroupErrorCodeEnum.USER_IS_JOINED_GROUP);
+    }
+
+    @Override
+    public ResponseVO<List<GroupMemberDTO>> getGroupMember(String groupId, Integer appId) {
+        List<GroupMemberDTO> groupMember = this.groupMemberMapper.getGroupMember(appId, groupId);
+        return ResponseVO.successResponse(groupMember);
+    }
+
+    @Override
+    public ResponseVO<GetRoleInGroupResp> getRoleInGroupOne(String groupId, String operator, Integer appId) {
+        GetRoleInGroupResp resp = new GetRoleInGroupResp();
+
+        QueryWrapper<ImGroupMemberEntity> queryOwner = new QueryWrapper<>();
+        queryOwner.eq(ImGroupMemberEntity.COL_GROUP_ID, groupId);
+        queryOwner.eq(ImGroupMemberEntity.COL_APP_ID, appId);
+        queryOwner.eq(ImGroupMemberEntity.COL_MEMBER_ID, operator);
+
+        ImGroupMemberEntity imGroupMemberEntity = this.groupMemberMapper.selectOne(queryOwner);
+        if (imGroupMemberEntity == null || imGroupMemberEntity.getRole() == GroupMemberRoleEnum.LEAVE.getCode()) {
+            return ResponseVO.errorResponse(GroupErrorCodeEnum.MEMBER_IS_NOT_JOINED_GROUP);
+        }
+
+        resp.setSpeakDate(imGroupMemberEntity.getSpeakDate());
+        resp.setGroupMemberId(imGroupMemberEntity.getGroupMemberId());
+        resp.setMemberId(imGroupMemberEntity.getMemberId());
+        resp.setRole(imGroupMemberEntity.getRole());
+        return ResponseVO.successResponse(resp);
     }
 }

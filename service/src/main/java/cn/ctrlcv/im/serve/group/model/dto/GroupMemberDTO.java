@@ -30,7 +30,7 @@ public class GroupMemberDTO {
     /**
      * 群成员类型：0-普通成员, 1-管理员, 2-群主, 3-已退出
      */
-    private Byte role;
+    private Integer role;
 
     /**
      * 群昵称
