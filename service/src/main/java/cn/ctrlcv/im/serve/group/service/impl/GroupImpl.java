@@ -7,27 +7,32 @@ import cn.ctrlcv.im.common.enums.GroupStatusEnum;
 import cn.ctrlcv.im.common.enums.GroupTypeEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
+import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
+import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMemberMapper;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
-import cn.ctrlcv.im.serve.group.model.request.CreateGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.GetGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.ImportGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.UpdateGroupReq;
+import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetGroupResp;
+import cn.ctrlcv.im.serve.group.model.resp.GetJoinedGroupResp;
 import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Class Name: GroupImpl
@@ -201,6 +206,159 @@ public class GroupImpl implements IGroupService {
             throw new ApplicationException(GroupErrorCodeEnum.UPDATE_GROUP_BASE_INFO_ERROR);
         }
 
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<?> getJoinedGroup(GetJoinedGroupReq req) {
+        ResponseVO<Collection<String>> memberJoinedGroup = this.groupMemberService.getMemberJoinedGroup(req);
+        if (memberJoinedGroup.isOk()) {
+
+            GetJoinedGroupResp resp = new GetJoinedGroupResp();
+
+            if (CollectionUtils.isEmpty(memberJoinedGroup.getData())) {
+                resp.setTotalCount(0);
+                resp.setGroupList(new ArrayList<>());
+                return ResponseVO.successResponse(resp);
+            }
+
+            QueryWrapper<ImGroupEntity> query = new QueryWrapper<>();
+            query.eq(ImGroupEntity.COL_APP_ID, req.getAppId());
+            query.in(ImGroupEntity.COL_GROUP_ID, memberJoinedGroup.getData());
+
+            if (CollectionUtils.isNotEmpty(req.getGroupType())) {
+                query.in(ImGroupEntity.COL_GROUP_TYPE, req.getGroupType());
+            }
+
+            List<ImGroupEntity> groupList = this.groupMapper.selectList(query);
+            resp.setGroupList(groupList);
+            if (req.getLimit() == null) {
+                resp.setTotalCount(groupList.size());
+            } else {
+                resp.setTotalCount(this.groupMapper.selectCount(query));
+            }
+            return ResponseVO.successResponse(resp);
+        } else {
+            return memberJoinedGroup;
+        }
+    }
+
+    @Transactional
+    @Override
+    public ResponseVO destroyGroup(DestroyGroupReq req) {
+        boolean isAdmin = false;
+
+        QueryWrapper<ImGroupEntity> objectQueryWrapper = new QueryWrapper<>();
+        objectQueryWrapper.eq(ImGroupEntity.COL_GROUP_ID, req.getGroupId());
+        objectQueryWrapper.eq(ImGroupEntity.COL_APP_ID, req.getAppId());
+        ImGroupEntity imGroupEntity = this.groupMapper.selectOne(objectQueryWrapper);
+        if (imGroupEntity == null) {
+            throw new ApplicationException(GroupErrorCodeEnum.PRIVATE_GROUP_CAN_NOT_DESTORY);
+        }
+
+        if(imGroupEntity.getStatus() == GroupStatusEnum.DESTROY.getCode()){
+            throw new ApplicationException(GroupErrorCodeEnum.GROUP_IS_DESTROY);
+        }
+
+        if (!isAdmin) {
+            if (imGroupEntity.getGroupType() == GroupTypeEnum.PUBLIC.getCode()) {
+                throw new ApplicationException(GroupErrorCodeEnum.THIS_OPERATE_NEED_OWNER_ROLE);
+            }
+
+            if (imGroupEntity.getGroupType() == GroupTypeEnum.PUBLIC.getCode() && !imGroupEntity.getOwnerId().equals(req.getOperator())) {
+                throw new ApplicationException(GroupErrorCodeEnum.THIS_OPERATE_NEED_OWNER_ROLE);
+            }
+        }
+
+        ImGroupEntity update = new ImGroupEntity();
+
+        update.setStatus(GroupStatusEnum.DESTROY.getCode());
+        int update1 = this.groupMapper.update(update, objectQueryWrapper);
+        if (update1 != 1) {
+            throw new ApplicationException(GroupErrorCodeEnum.UPDATE_GROUP_BASE_INFO_ERROR);
+        }
+
+
+        return ResponseVO.successResponse();
+    }
+
+    @Transactional
+    @Override
+    public ResponseVO transferGroup(TransferGroupReq req) {
+        ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.groupMemberService.getRoleInGroupOne(req.getGroupId(), req.getOperator(), req.getAppId());
+        if (!roleInGroupOne.isOk()) {
+            return roleInGroupOne;
+        }
+
+        if (roleInGroupOne.getData().getRole() != GroupMemberRoleEnum.OWNER.getCode()) {
+            return ResponseVO.errorResponse(GroupErrorCodeEnum.THIS_OPERATE_NEED_OWNER_ROLE);
+        }
+
+        ResponseVO<GetRoleInGroupResp> newOwnerRole = groupMemberService.getRoleInGroupOne(req.getGroupId(), req.getOwnerId(), req.getAppId());
+        if (!newOwnerRole.isOk()) {
+            return newOwnerRole;
+        }
+
+        QueryWrapper<ImGroupEntity> objectQueryWrapper = new QueryWrapper<>();
+        objectQueryWrapper.eq(ImGroupEntity.COL_GROUP_ID, req.getGroupId());
+        objectQueryWrapper.eq(ImGroupEntity.COL_APP_ID, req.getAppId());
+        ImGroupEntity imGroupEntity = this.groupMapper.selectOne(objectQueryWrapper);
+        if(imGroupEntity.getStatus() == GroupStatusEnum.DESTROY.getCode()){
+            throw new ApplicationException(GroupErrorCodeEnum.GROUP_IS_DESTROY);
+        }
+
+        ImGroupEntity updateGroup = new ImGroupEntity();
+        updateGroup.setOwnerId(req.getOwnerId());
+        UpdateWrapper<ImGroupEntity> updateGroupWrapper = new UpdateWrapper<>();
+        updateGroupWrapper.eq(ImGroupEntity.COL_APP_ID, req.getAppId());
+        updateGroupWrapper.eq(ImGroupEntity.COL_GROUP_ID, req.getGroupId());
+        this.groupMapper.update(updateGroup, updateGroupWrapper);
+        this.groupMemberService.transferGroupMember(req.getOwnerId(), req.getGroupId(), req.getAppId());
+
+        return ResponseVO.successResponse();
+    }
+
+
+    @Override
+    public ResponseVO muteGroup(MuteGroupReq req) {
+        ResponseVO<ImGroupEntity> groupResp = getGroup(req.getGroupId(), req.getAppId());
+        if (!groupResp.isOk()) {
+            return groupResp;
+        }
+
+        if(groupResp.getData().getStatus() == GroupStatusEnum.DESTROY.getCode()){
+            throw new ApplicationException(GroupErrorCodeEnum.GROUP_IS_DESTROY);
+        }
+
+        boolean isAdmin = false;
+
+        if (!isAdmin) {
+            //不是后台调用需要检查权限
+            ResponseVO<GetRoleInGroupResp> role = groupMemberService.getRoleInGroupOne(req.getGroupId(), req.getOperator(), req.getAppId());
+
+            if (!role.isOk()) {
+                return role;
+            }
+
+            GetRoleInGroupResp data = role.getData();
+            Integer roleInfo = data.getRole();
+
+            boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode() || roleInfo == GroupMemberRoleEnum.OWNER.getCode();
+
+            //公开群只能群主修改资料
+            if (!isManager) {
+                throw new ApplicationException(GroupErrorCodeEnum.THIS_OPERATE_NEED_MANAGER_ROLE);
+            }
+        }
+
+        ImGroupEntity update = new ImGroupEntity();
+        update.setMute(req.getMute());
+
+        UpdateWrapper<ImGroupEntity> wrapper = new UpdateWrapper<>();
+        wrapper.eq(ImGroupEntity.COL_GROUP_ID,req.getGroupId());
+        wrapper.eq(ImGroupEntity.COL_APP_ID,req.getAppId());
+        this.groupMapper.update(update,wrapper);
 
         return ResponseVO.successResponse();
     }

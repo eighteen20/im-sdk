@@ -2,11 +2,11 @@ package cn.ctrlcv.im.serve.group.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
-import cn.ctrlcv.im.serve.group.model.request.CreateGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.GetGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.ImportGroupReq;
-import cn.ctrlcv.im.serve.group.model.request.UpdateGroupReq;
+import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetGroupResp;
+import cn.ctrlcv.im.serve.group.model.resp.GetJoinedGroupResp;
+
+import java.util.Collection;
 
 /**
  * interface Name: IGroupService
@@ -62,4 +62,40 @@ public interface IGroupService {
      * @return No
      */
     ResponseVO<?> updateBaseGroupInfo(UpdateGroupReq req);
+
+
+    /**
+     * 获取用户加入的群列表
+     *
+     * @param req {@link GetJoinedGroupReq}
+     * @return {@link GetJoinedGroupResp}
+     */
+    ResponseVO<?> getJoinedGroup(GetJoinedGroupReq req);
+
+
+    /**
+     * 解散群组，只支持后台管理员和群主解散
+     *
+     * @param req {@link DestroyGroupReq}
+     * @return
+     */
+    ResponseVO destroyGroup(DestroyGroupReq req);
+
+
+    /**
+     * 转移群主
+     *
+     * @param req {@link TransferGroupReq}
+     * @return
+     */
+    ResponseVO transferGroup(TransferGroupReq req);
+
+
+    /**
+     * 禁言群
+     *
+     * @param req {@link MuteGroupReq}
+     * @return
+     */
+    ResponseVO muteGroup(MuteGroupReq req);
 }

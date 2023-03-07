@@ -2,9 +2,10 @@ package cn.ctrlcv.im.serve.group.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
-import cn.ctrlcv.im.serve.group.model.request.ImportGroupMemberReq;
+import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -52,4 +53,79 @@ public interface IGroupMemberService {
      * @return
      */
     ResponseVO<GetRoleInGroupResp> getRoleInGroupOne(String groupId, String operator, Integer appId);
+
+    /**
+     * 获取用户加入的群组ID
+     *
+     * @param req
+     * @return 群组ID集合
+     */
+    ResponseVO<Collection<String>> getMemberJoinedGroup(GetJoinedGroupReq req);
+
+    /**
+     * 群组转移群主
+     *
+     * @param ownerId 新群主ID
+     * @param groupId 群组ID
+     * @param appId 应用ID
+     * @return
+     */
+    ResponseVO<?> transferGroupMember(String ownerId, String groupId, Integer appId);
+
+    /**
+     * 添加群成员，拉人入群的逻辑，直接进入群聊
+     * <p>
+     *  如果是后台管理员，则直接拉入群，
+     *  并且群成员也可以拉人入群.只有私有群可以调用本接口
+     * </p>
+     *
+     * @param req {@link AddGroupMemberReq}
+     * @return
+     */
+    ResponseVO<?> addMember(AddGroupMemberReq req);
+
+
+    /**
+     * 将群成员移出群组
+     *
+     * @param req {@link RemoveGroupMemberReq}
+     * @return
+     */
+    ResponseVO<?> removeMember(RemoveGroupMemberReq req);
+
+    /**
+     * 将群成员移出群聊（直接操作数据库, 内部调用）
+     *
+     * @param groupId 群组ID
+     * @param appId 应用ID
+     * @param memberId 成员ID
+     * @return
+     */
+    ResponseVO<?> removeGroupMember(String groupId, Integer appId, String memberId);
+
+
+    /**
+     * 群成员主动退出群聊
+     *
+     * @param req
+     * @return
+     */
+    ResponseVO exitGroup(ExitGroupReq req);
+
+
+    /**
+     * 修改群成员信息
+     *
+     * @param req {@link UpdateGroupMemberReq}
+     * @return
+     */
+    ResponseVO updateGroupMember(UpdateGroupMemberReq req);
+
+    /**
+     * 禁言群成员
+     *
+     * @param req {@link SpeakMemberReq}
+     * @return
+     */
+    ResponseVO speak(SpeakMemberReq req);
 }

@@ -47,7 +47,7 @@ public class ImGroupEntity implements Serializable {
      * 是否开启禁言, 1-禁言
      */
     @TableField(value = "mute")
-    private Boolean mute;
+    private Integer mute;
 
     /**
      * 群状态，1-正常，0-解散
