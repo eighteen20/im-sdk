@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.tcp.server;
 
+import cn.ctrlcv.im.codec.MessageDecoder;
 import cn.ctrlcv.im.codec.config.BootstrapConfig;
+import cn.ctrlcv.im.tcp.handler.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -45,7 +47,8 @@ public class ImServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
-
+                        socketChannel.pipeline().addLast(new MessageDecoder());
+                        socketChannel.pipeline().addLast(new NettyServerHandler());
                     }
                 })
         ;
