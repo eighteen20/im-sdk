@@ -17,6 +17,8 @@
     <modules>
         <module>common</module>
         <module>service</module>
+        <module>codec</module>
+        <module>tcp</module>
     </modules>
 
 
@@ -25,7 +27,7 @@
         <mybatis-plus.version>3.4.2</mybatis-plus.version>
         <hutool.version>5.8.1</hutool.version>
         <redisson.version>3.15.6</redisson.version>
-        <snakeyaml.version>1.27</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <protostuff-api>1.0.10</protostuff-api>
         <zkClient.version>0.1</zkClient.version>
         <apache.httpclient.version>4.5.9</apache.httpclient.version>
@@ -33,7 +35,7 @@
         <apache.commons.version>3.12.0</apache.commons.version>
         <fastjson.version>1.2.51</fastjson.version>
         <springboot.version>2.3.2.RELEASE</springboot.version>
-        <netty.version>4.1.35.Final</netty.version>
+        <netty.version>4.1.86.Final</netty.version>
         <feign.version>8.18.0</feign.version>
     </properties>
 

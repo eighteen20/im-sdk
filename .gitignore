@@ -2,3 +2,4 @@
 /logs/*.log
 /common/target/
 /service/target/
+/tcp/target/
