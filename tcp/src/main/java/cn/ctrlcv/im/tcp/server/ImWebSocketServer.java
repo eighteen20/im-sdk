@@ -1,5 +1,6 @@
 package cn.ctrlcv.im.tcp.server;
 
+import cn.ctrlcv.im.codec.config.BootstrapConfig;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -22,16 +23,18 @@ import lombok.extern.slf4j.Slf4j;
  * @date 2023-03-12
  */
 @Slf4j
-public class LimWebSocketServer {
-    /**
-     * webSocket端口号
-     */
-    private int port;
+public class ImWebSocketServer {
+    private BootstrapConfig.TcpConfig tcpConfig;
 
-    public LimWebSocketServer(int port) {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workGroup = new NioEventLoopGroup();
-        ServerBootstrap bootstrap = new ServerBootstrap();
+    EventLoopGroup bossGroup;
+    EventLoopGroup workGroup;
+    ServerBootstrap bootstrap;
+
+    public ImWebSocketServer(BootstrapConfig.TcpConfig tcpConfig) {
+        this.tcpConfig = tcpConfig;
+        bossGroup = new NioEventLoopGroup(this.tcpConfig.getBossThreadSize());
+        workGroup = new NioEventLoopGroup(this.tcpConfig.getWorkThreadSize());
+        bootstrap = new ServerBootstrap();
         bootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
                 // 服务端可连接队列大小
@@ -63,7 +66,10 @@ public class LimWebSocketServer {
                     }
                 })
         ;
-        bootstrap.bind(port);
+    }
+
+    public void start() {
+        this.bootstrap.bind(this.tcpConfig.getTcpPort());
         log.info(" ========== IM-webSocket 服务启动 =========");
     }
 
