@@ -57,6 +57,12 @@ public class BootstrapConfig {
          * zk配置
          */
         private ZkConfig zkConfig;
+
+
+        /**
+         * 分布式环境下， 用于区分服务， 不可重复
+         */
+        private Integer brokerId;
     }
 
 

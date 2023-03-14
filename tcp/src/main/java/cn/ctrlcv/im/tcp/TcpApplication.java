@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.tcp;
 
 import cn.ctrlcv.im.codec.config.BootstrapConfig;
+import cn.ctrlcv.im.tcp.receiver.MessageReceiver;
 import cn.ctrlcv.im.tcp.redis.RedisManager;
 import cn.ctrlcv.im.tcp.register.RegistryZk;
 import cn.ctrlcv.im.tcp.register.ZkKit;
@@ -44,6 +45,8 @@ public class TcpApplication {
             MqFactory.init(bootstrapConfig.getIm().getRabbitmq());
 
             registerZk(bootstrapConfig);
+
+            MessageReceiver.init(bootstrapConfig.getIm().getBrokerId());
 
         } catch (Exception e) {
             e.printStackTrace();

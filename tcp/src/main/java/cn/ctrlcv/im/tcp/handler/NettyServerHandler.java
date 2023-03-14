@@ -19,6 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * Class Name: NettyServerHandler
  * Class Description: TODO
@@ -28,6 +31,13 @@ import org.redisson.api.RedissonClient;
  */
 @Slf4j
 public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
+
+    private Integer brokerId;
+
+    public NettyServerHandler(Integer brokerId) {
+        this.brokerId = brokerId;
+    }
+
     @Override
     protected void channelRead0(ChannelHandlerContext context, Message msg) throws Exception {
         int command = msg.getMessageHeader().getCommand();
@@ -46,6 +56,12 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             userSession.setClientType(msg.getMessageHeader().getClientType());
             userSession.setUserId(loginPack.getUserId());
             userSession.setConnectState(ImConnectStatusEnum.ONLINE_STATUS.getCode());
+            userSession.setBrokerId(this.brokerId);
+            try {
+                userSession.setBrokerHost(InetAddress.getLocalHost().getHostAddress());
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
 
             // 存入Redis
             RedissonClient redissonClient = RedisManager.getRedissonClient();

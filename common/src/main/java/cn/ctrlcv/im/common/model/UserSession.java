@@ -32,4 +32,15 @@ public class UserSession {
      * 2-离线
      */
     private Integer connectState;
+
+
+    /**
+     * 分布式环境下，记录用户登录在哪个节点上
+     */
+    private Integer brokerId;
+
+    /**
+     * 分布式环境下，记录用户登录在哪个节点的IP
+     */
+    private String brokerHost;
 }
