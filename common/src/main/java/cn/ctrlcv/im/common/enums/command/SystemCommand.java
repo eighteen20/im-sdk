@@ -11,7 +11,13 @@ public enum SystemCommand implements Command {
     /**
      * 登录 9000
      */
-    LOGIN(0x2328);
+    LOGIN(0x2328),
+
+    /**
+     * 退出登录 9003
+     */
+    LOGOUT(0x232b)
+    ;
 
     private int command;
 

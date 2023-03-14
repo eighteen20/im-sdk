@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.tcp;
 
 import cn.ctrlcv.im.codec.config.BootstrapConfig;
+import cn.ctrlcv.im.tcp.redis.RedisManager;
 import cn.ctrlcv.im.tcp.server.ImServer;
 import cn.ctrlcv.im.tcp.server.ImWebSocketServer;
 import org.yaml.snakeyaml.Yaml;
@@ -31,6 +32,8 @@ public class TcpApplication {
 
             new ImServer(bootstrapConfig.getIm()).start();
             new ImWebSocketServer(bootstrapConfig.getIm()).start();
+
+            RedisManager.init(bootstrapConfig);
         }catch (Exception e){
             e.printStackTrace();
             System.exit(500);
