@@ -50,6 +50,11 @@ public class BootstrapConfig {
          * redis 配置文件
          */
         private RedisConfig redis;
+
+        /**
+         * redis 配置文件
+         */
+        private Rabbitmq rabbitmq;
     }
 
 
@@ -93,6 +98,11 @@ public class BootstrapConfig {
          */
         private RedisSingle single;
 
+        /**
+         * rabbitMQ 配置
+         */
+        private Rabbitmq rabbitmq;
+
     }
 
     /**
@@ -107,6 +117,26 @@ public class BootstrapConfig {
          * 地址
          */
         private String address;
+    }
+
+
+    /**
+     * rabbitmq哨兵模式配置
+     */
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Rabbitmq {
+        private String host;
+
+        private Integer port;
+
+        private String virtualHost;
+
+        private String userName;
+
+        private String password;
     }
 
 }

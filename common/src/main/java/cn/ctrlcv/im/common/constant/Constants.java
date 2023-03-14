@@ -39,4 +39,51 @@ public class Constants {
          */
         public static final String USER_SESSION_CONSTANTS = ":userSession:";
     }
+
+
+    /**
+     * RabbitMQ ChannelName de 常量
+     */
+    public static class RabbitConstants{
+
+        /**
+         * IM服务投递给用户服务的消息
+         */
+        public static final String IM_2_USER_SERVICE = "pipeline2UserService";
+
+        /**
+         * IM服务投递给消息服务的消息
+         */
+        public static final String IM_2_MESSAGE_SERVICE = "pipeline2MessageService";
+
+
+        /**
+         * IM服务投递消息给群组服务
+         */
+        public static final String IM_2_GROUP_SERVICE = "pipeline2GroupService";
+
+
+        /**
+         * IM服务投递消息给好友服务
+         */
+        public static final String IM_2_FRIENDSHIP_SERVICE = "pipeline2FriendshipService";
+
+
+        /**
+         * 消息服务给IM服务的消息
+         */
+        public static final String MESSAGE_SERVICE_2_IM = "messageService2Pipeline";
+
+        /**
+         * 群组服务投递给IM服务的消息
+         */
+        public static final String GROUP_SERVICE_2_IM = "GroupService2Pipeline";
+
+        /**
+         * 好友服务投递给IM服务的消息
+         */
+        public static final String FRIENDSHIP_2_IM = "friendShip2Pipeline";
+
+
+    }
 }

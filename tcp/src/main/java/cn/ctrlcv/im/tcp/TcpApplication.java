@@ -1,9 +1,11 @@
 package cn.ctrlcv.im.tcp;
 
 import cn.ctrlcv.im.codec.config.BootstrapConfig;
+import cn.ctrlcv.im.tcp.receiver.MessageReceiver;
 import cn.ctrlcv.im.tcp.redis.RedisManager;
 import cn.ctrlcv.im.tcp.server.ImServer;
 import cn.ctrlcv.im.tcp.server.ImWebSocketServer;
+import cn.ctrlcv.im.tcp.utils.MqFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
@@ -34,6 +36,10 @@ public class TcpApplication {
             new ImWebSocketServer(bootstrapConfig.getIm()).start();
 
             RedisManager.init(bootstrapConfig);
+
+            MqFactory.init(bootstrapConfig.getIm().getRabbitmq());
+
+//            MessageReceiver.init();
         }catch (Exception e){
             e.printStackTrace();
             System.exit(500);
