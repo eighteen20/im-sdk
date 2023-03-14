@@ -16,7 +16,12 @@ public enum SystemCommand implements Command {
     /**
      * 退出登录 9003
      */
-    LOGOUT(0x232b)
+    LOGOUT(0x232b),
+
+    /**
+     * 心跳 9999
+     */
+    PING(0x270f)
     ;
 
     private int command;

@@ -19,10 +19,32 @@ public class BootstrapConfig {
 
     @Data
     public static class TcpConfig {
+
+        /**
+         * TCP 端口
+         */
         private Integer tcpPort;
+
+        /**
+         * webSocket 端口
+         */
         private Integer webSocketPort;
+
+        /**
+         * 主线程数
+         */
         private Integer bossThreadSize;
+
+        /**
+         *
+         * 工作线程数
+         */
         private Integer workThreadSize;
+
+        /**
+         * 心跳超时时间(毫秒)
+         */
+        private Long heartBeatTime;
 
         /**
          * redis 配置文件

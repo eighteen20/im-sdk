@@ -10,10 +10,13 @@ package cn.ctrlcv.im.common.enums;
 public enum ImConnectStatusEnum {
 
     /**
-     * 管道链接状态,1=在线，2=离线。。
+     * 管道链接状态,1=在线
      */
     ONLINE_STATUS(1),
 
+    /**
+     * 管道链接状态, 2=离线
+     */
     OFFLINE_STATUS(2),
     ;
 

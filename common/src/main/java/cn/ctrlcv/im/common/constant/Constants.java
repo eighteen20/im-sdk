@@ -25,6 +25,11 @@ public class Constants {
     public static final String CLIENT_TYPE = "clientType";
 
     /**
+     * 上一次心跳时间
+     */
+    public static final String READ_TIME = "readTime";
+
+    /**
      * Redis key 常量
      */
     public static class RedisConstants {
