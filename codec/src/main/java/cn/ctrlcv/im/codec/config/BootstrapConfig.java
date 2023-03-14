@@ -1,9 +1,6 @@
 package cn.ctrlcv.im.codec.config;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Class Name: BootstrapConfig
@@ -55,13 +52,15 @@ public class BootstrapConfig {
          * redis 配置文件
          */
         private Rabbitmq rabbitmq;
+
+        /**
+         * zk配置
+         */
+        private ZkConfig zkConfig;
     }
 
 
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class RedisConfig {
 
         /**
@@ -109,9 +108,6 @@ public class BootstrapConfig {
      * redis单机配置
      */
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class RedisSingle {
         /**
          * 地址
@@ -124,9 +120,6 @@ public class BootstrapConfig {
      * rabbitmq哨兵模式配置
      */
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Rabbitmq {
         private String host;
 
@@ -137,6 +130,23 @@ public class BootstrapConfig {
         private String userName;
 
         private String password;
+    }
+
+
+    /**
+     * ZooKeeper 配置
+     */
+    @Data
+    public static class ZkConfig {
+        /**
+         * zk连接地址
+         */
+        private String zkAddr;
+
+        /**
+         * zk连接超时时间
+         */
+        private Integer zkConnectTimeOut;
     }
 
 }

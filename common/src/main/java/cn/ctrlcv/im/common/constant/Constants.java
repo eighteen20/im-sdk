@@ -30,6 +30,21 @@ public class Constants {
     public static final String READ_TIME = "readTime";
 
     /**
+     * zookeeper 父节点, 前置节点
+     */
+    public static final String IM_CORE_ZK_ROOT = "/im-coreRoot";
+
+    /**
+     * zookeeper 父节点, 后置节点，TCP服务
+     */
+    public static final String IM_CORE_ZK_ROOT_TCP = "/tcp";
+
+    /**
+     * zookeeper 父节点, 后置节点，websocket服务
+     */
+    public static final String IM_CORE_ZK_ROOT_WS = "/ws";
+
+    /**
      * Redis key 常量
      */
     public static class RedisConstants {
