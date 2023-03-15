@@ -21,7 +21,12 @@ public enum SystemCommand implements Command {
     /**
      * 心跳 9999
      */
-    PING(0x270f)
+    PING(0x270f),
+
+    /**
+     * 下线通知，用于多端互斥  9002
+     */
+    MUTUAL_LOGIN(0x232a)
     ;
 
     private int command;

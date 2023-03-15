@@ -25,6 +25,11 @@ public class Constants {
     public static final String CLIENT_TYPE = "clientType";
 
     /**
+     * 设备IMEI号
+     */
+    public static final String IMEI = "imei";
+
+    /**
      * 上一次心跳时间
      */
     public static final String READ_TIME = "readTime";
@@ -53,13 +58,18 @@ public class Constants {
          * 格式：APPID + USER_SESSION_CONSTANTS + userId
          */
         public static final String USER_SESSION_CONSTANTS = ":userSession:";
+
+        /**
+         * 用户上线通知channel
+         */
+        public static final String USER_LOGIN_CHANNEL = "signal/channel/LOGIN_USER_INNER_QUEUE";
     }
 
 
     /**
      * RabbitMQ ChannelName de 常量
      */
-    public static class RabbitConstants{
+    public static class RabbitConstants {
 
         /**
          * IM服务投递给用户服务的消息

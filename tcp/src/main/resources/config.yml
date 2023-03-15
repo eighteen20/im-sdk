@@ -5,6 +5,7 @@ im:
   workThreadSize: 1
   heartBeatTime: 3000 # 心跳超时时间(毫秒)
   brokerId: 1000
+  loginModel: 1
 
   redis:
     mode: single # 单机模式：single 哨兵模式：sentinel 集群模式：cluster

@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.tcp.server;
 
 import cn.ctrlcv.im.codec.MessageDecoder;
+import cn.ctrlcv.im.codec.MessageEncoder;
 import cn.ctrlcv.im.codec.config.BootstrapConfig;
 import cn.ctrlcv.im.tcp.handler.HeartBeatHandler;
 import cn.ctrlcv.im.tcp.handler.NettyServerHandler;
@@ -50,6 +51,7 @@ public class ImServer {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline().addLast(new MessageDecoder());
+                        socketChannel.pipeline().addLast(new MessageEncoder());
 //                        socketChannel.pipeline().addLast(new IdleStateHandler(0, 0, 10));
                         socketChannel.pipeline().addLast(new HeartBeatHandler(tcpConfig.getHeartBeatTime()));
                         socketChannel.pipeline().addLast(new NettyServerHandler(tcpConfig.getBrokerId()));

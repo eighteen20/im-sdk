@@ -9,6 +9,7 @@ import cn.ctrlcv.im.tcp.server.ImServer;
 import cn.ctrlcv.im.tcp.server.ImWebSocketServer;
 import cn.ctrlcv.im.tcp.utils.MqFactory;
 import org.I0Itec.zkclient.ZkClient;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;

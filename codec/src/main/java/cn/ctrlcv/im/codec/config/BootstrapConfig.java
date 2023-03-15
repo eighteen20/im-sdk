@@ -63,6 +63,19 @@ public class BootstrapConfig {
          * 分布式环境下， 用于区分服务， 不可重复
          */
         private Integer brokerId;
+
+
+        /**
+         * <p>
+         *     <p>多端同步模式：</p>
+         *     <p>1 - 只允许一端在线，手机/电脑/web 踢掉除了本client+imel的设备</p>
+         *     <p>2 - 允许手机/电脑的一台设备 + web在线 踢掉除了本client+imel的非web端设备</p>
+         *     <p>3 - 允许手机和电脑单设备 + web 同时在线 踢掉非本client+imel的同端设备</p>
+         *     <p>4 - 允许所有端多设备登录 不踢任何设备</p>
+         * </p>
+         * TODO 以后可以配置到表里（appId + 配置）
+         */
+        private Integer loginModel;
     }
 
 
