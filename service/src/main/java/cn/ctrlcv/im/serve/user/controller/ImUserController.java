@@ -1,12 +1,22 @@
 package cn.ctrlcv.im.serve.user.controller;
 
+import cn.ctrlcv.im.common.ClientTypeEnum;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.route.RouteHandler;
+import cn.ctrlcv.im.common.route.RouteInfo;
+import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
 import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
+import cn.ctrlcv.im.serve.user.model.request.LoginReq;
 import cn.ctrlcv.im.serve.user.service.IUserService;
+import cn.ctrlcv.im.serve.utils.ZkUtil;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class Name: ImUserController
@@ -20,11 +30,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ImUserController {
 
     private final IUserService userService;
+    private final RouteHandler routeHandler;
+    private final ZkUtil zkUtil;
 
-    public ImUserController(IUserService userService) {
+
+    public ImUserController(IUserService userService, RouteHandler routeHandler, ZkUtil zkUtil) {
         this.userService = userService;
+        this.routeHandler = routeHandler;
+        this.zkUtil = zkUtil;
     }
-
 
     /**
      * 导入用户资料
@@ -37,6 +51,35 @@ public class ImUserController {
     public ResponseVO<?> importUser(@RequestBody ImportUserReq req, Integer appId) {
         req.setAppId(appId);
         return this.userService.importUser(req);
+    }
+
+
+    /**
+     * im的登录接口，返回im地址
+     *
+     * @param req {@link LoginReq}
+     * @param appId 应用Id
+     * @return
+     */
+    @PostMapping("/login")
+    public ResponseVO<?> login(@RequestBody @Validated LoginReq req, Integer appId) {
+        req.setAppId(appId);
+
+        ResponseVO<?> login = this.userService.login(req);
+        if (login.isOk()) {
+            // 去zookeeper 获取一个IM的地址， 返回出去
+            List<String> allNode;
+            if (req.getClientType() == ClientTypeEnum.WEB.getCode()) {
+                allNode = this.zkUtil.getAllWsNode();
+            } else {
+                allNode = this.zkUtil.getAllTcpNode();
+            }
+            String s = this.routeHandler.routerServer(allNode, req.getUserId());
+            RouteInfo parse = RouteInfoParseUtil.parseBean(s);
+            return ResponseVO.successResponse(parse);
+        }
+
+        return ResponseVO.errorResponse();
     }
 
 

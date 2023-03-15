@@ -27,7 +27,7 @@
         <mybatis-plus.version>3.4.2</mybatis-plus.version>
         <hutool.version>5.8.1</hutool.version>
         <redisson.version>3.15.6</redisson.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
+        <snakeyaml.version>1.27</snakeyaml.version>
         <protostuff-api>1.0.10</protostuff-api>
         <zkClient.version>0.1</zkClient.version>
         <apache.httpclient.version>4.5.9</apache.httpclient.version>
@@ -54,7 +54,21 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <!-- 日志框架 -->
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-access</artifactId>
+        </dependency>
+
+<!--        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
             <exclusions>
@@ -63,7 +77,7 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
 
     </dependencies>
 

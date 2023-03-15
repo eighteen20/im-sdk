@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
 import lombok.Data;
 
 /**
@@ -16,13 +18,15 @@ public class ImGroupEntity implements Serializable {
     /**
      * 主键，群ID
      */
-    @TableId(value = "group_id", type = IdType.INPUT)
+//    @TableId(value = "group_id", type = IdType.INPUT)
+    @MppMultiId
     private String groupId;
 
     /**
      * 应用ID
      */
-    @TableId(value = "app_id", type = IdType.INPUT)
+//    @TableId(value = "app_id", type = IdType.INPUT)
+    @MppMultiId
     private Integer appId;
 
     /**

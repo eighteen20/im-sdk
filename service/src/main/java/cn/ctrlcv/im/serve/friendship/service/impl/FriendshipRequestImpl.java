@@ -17,6 +17,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -29,14 +30,12 @@ import java.util.List;
 @Service
 public class FriendshipRequestImpl implements IFriendshipRequestService {
 
-    private final ImFriendshipRequestMapper friendshipRequestMapper;
+    @Resource
+    private ImFriendshipRequestMapper friendshipRequestMapper;
 
-    private final IFriendshipService friendshipService;
+    @Resource
+    private IFriendshipService friendshipService;
 
-    public FriendshipRequestImpl(ImFriendshipRequestMapper friendshipRequestMapper, IFriendshipService friendshipService) {
-        this.friendshipRequestMapper = friendshipRequestMapper;
-        this.friendshipService = friendshipService;
-    }
 
     @Override
     public ResponseVO<?> addFriendshipRequest(String fromId, FriendDTO dto, Integer appId) {

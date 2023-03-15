@@ -29,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -41,18 +42,18 @@ import java.util.*;
 @Service
 public class GroupMemberImpl implements IGroupMemberService {
 
-    private final ImGroupMemberMapper groupMemberMapper;
-    private final IGroupService groupService;
-    private final IUserService userService;
-    private final IGroupMemberService groupMemberService;
+    @Resource
+    private ImGroupMemberMapper groupMemberMapper;
 
-    public GroupMemberImpl(ImGroupMemberMapper groupMemberMapper, IGroupService groupService, IUserService userService,
-                           IGroupMemberService groupMemberService) {
-        this.groupMemberMapper = groupMemberMapper;
-        this.groupService = groupService;
-        this.userService = userService;
-        this.groupMemberService = groupMemberService;
-    }
+    @Resource
+    private IGroupService groupService;
+
+    @Resource
+    private IUserService userService;
+
+    @Resource
+    private IGroupMemberService groupMemberService;
+
 
     @Override
     public ResponseVO<?> importGroupMember(ImportGroupMemberReq req) {

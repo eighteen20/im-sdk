@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -43,13 +44,13 @@ import java.util.*;
  */
 @Service
 public class GroupImpl implements IGroupService {
-    private final ImGroupMapper groupMapper;
-    private final IGroupMemberService groupMemberService;
 
-    public GroupImpl(ImGroupMapper groupMapper, IGroupMemberService groupMemberService) {
-        this.groupMapper = groupMapper;
-        this.groupMemberService = groupMemberService;
-    }
+    @Resource
+    private ImGroupMapper groupMapper;
+
+    @Resource
+    private IGroupMemberService groupMemberService;
+
 
     @Override
     public ResponseVO<?> importGroup(ImportGroupReq req) {

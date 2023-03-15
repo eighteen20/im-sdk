@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,17 +29,15 @@ import java.util.List;
 @Service
 public class FriendShipGroupMemberImpl implements IFriendShipGroupMemberService {
 
-    private final ImFriendshipGroupMemberMapper groupMemberMapper;
+    @Resource
+    private ImFriendshipGroupMemberMapper groupMemberMapper;
 
-    private final IFriendshipGroupService groupService;
+    @Resource
+    private IFriendshipGroupService groupService;
 
-    private final IUserService userService;
+    @Resource
+    private IUserService userService;
 
-    public FriendShipGroupMemberImpl(ImFriendshipGroupMemberMapper groupMemberMapper, IFriendshipGroupService groupService, IUserService userService) {
-        this.groupMemberMapper = groupMemberMapper;
-        this.groupService = groupService;
-        this.userService = userService;
-    }
 
     @Override
     @Transactional(rollbackFor = ApplicationException.class)

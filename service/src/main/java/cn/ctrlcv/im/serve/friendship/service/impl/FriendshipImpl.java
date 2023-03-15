@@ -21,9 +21,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +43,15 @@ import java.util.stream.Collectors;
 @Service
 public class FriendshipImpl implements IFriendshipService {
 
-    private final ImFriendshipMapper friendshipMapper;
-    private final IUserService userService;
+    @Resource
+    private ImFriendshipMapper friendshipMapper;
 
-    private final IFriendshipRequestService friendshipRequestService;
+    @Resource
+    private IUserService userService;
 
-    public FriendshipImpl(ImFriendshipMapper friendshipMapper, IUserService userService, IFriendshipRequestService friendshipRequestService) {
-        this.friendshipMapper = friendshipMapper;
-        this.userService = userService;
-        this.friendshipRequestService = friendshipRequestService;
-    }
+    @Resource
+    private IFriendshipRequestService friendshipRequestService;
+
 
     public static final int IMPORT_MAX_NUMBER_OF_FRIENDSHIP = 100;
 

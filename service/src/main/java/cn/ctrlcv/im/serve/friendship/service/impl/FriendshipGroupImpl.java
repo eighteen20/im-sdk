@@ -17,6 +17,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+
 /**
  * Class Name: FriendshipGroupImpl
  * Class Description: 好友分组业务实现
@@ -27,13 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class FriendshipGroupImpl implements IFriendshipGroupService {
 
-    private final ImFriendshipGroupMapper groupMapper;
-    private final IFriendShipGroupMemberService groupMemberService;
+    @Resource
+    private ImFriendshipGroupMapper groupMapper;
 
-    public FriendshipGroupImpl(ImFriendshipGroupMapper groupMapper, IFriendShipGroupMemberService groupMemberService) {
-        this.groupMapper = groupMapper;
-        this.groupMemberService = groupMemberService;
-    }
+    @Resource
+    private IFriendShipGroupMemberService groupMemberService;
+
 
     @Override
     @Transactional(rollbackFor = ApplicationException.class)
