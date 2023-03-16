@@ -9,6 +9,9 @@ package cn.ctrlcv.im.common;
  */
 public enum ClientTypeEnum {
 
+    /**
+     *
+     */
     WEBAPI(0,"webApi"),
     WEB(1,"web"),
     IOS(2,"ios"),

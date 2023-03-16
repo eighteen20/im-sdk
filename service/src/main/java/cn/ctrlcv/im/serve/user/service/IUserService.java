@@ -2,10 +2,7 @@ package cn.ctrlcv.im.serve.user.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
-import cn.ctrlcv.im.serve.user.model.request.DeleteUserReq;
-import cn.ctrlcv.im.serve.user.model.request.GetUserInfoReq;
-import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
-import cn.ctrlcv.im.serve.user.model.request.ModifyUserInfoReq;
+import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 
@@ -58,4 +55,12 @@ public interface IUserService {
      * @return
      */
     ResponseVO<?> modifyUserInfo(ModifyUserInfoReq req);
+
+    /**
+     * im的登录接口，返回im地址
+     *
+     * @param req req {@link LoginReq}
+     * @return
+     */
+    ResponseVO login(LoginReq req);
 }

@@ -17,11 +17,16 @@ logging:
 server:
   port: 8000
 
+imconfig:
+  # zookeeper 配置
+  zkAddr: 127.0.0.1:2181
+  zkConnectTimeOut: 5000
+
 
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  mapper-locations: classpath*:mapperxml/*/*.xml
+  mapper-locations: classpath*:mapperxml/**/*.xml
   global-config:
     db-config:
       update-strategy: NOT_EMPTY

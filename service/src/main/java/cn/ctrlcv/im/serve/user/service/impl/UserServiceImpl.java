@@ -6,10 +6,7 @@ import cn.ctrlcv.im.common.enums.UserErrorCodeEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.dao.mapper.ImUserDataEntityMapper;
-import cn.ctrlcv.im.serve.user.model.request.DeleteUserReq;
-import cn.ctrlcv.im.serve.user.model.request.GetUserInfoReq;
-import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
-import cn.ctrlcv.im.serve.user.model.request.ModifyUserInfoReq;
+import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
@@ -176,4 +173,9 @@ public class UserServiceImpl implements IUserService {
         throw new ApplicationException(UserErrorCodeEnum.MODIFY_USER_ERROR);
     }
 
+    @Override
+    public ResponseVO login(LoginReq req) {
+        // TODO 可拓展一些具体的业务逻辑
+        return ResponseVO.successResponse();
+    }
 }
