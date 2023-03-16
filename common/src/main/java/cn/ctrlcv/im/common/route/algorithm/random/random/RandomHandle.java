@@ -1,4 +1,4 @@
-package cn.ctrlcv.im.common.route.algorithm.random;
+package cn.ctrlcv.im.common.route.algorithm.random.random;
 
 import cn.ctrlcv.im.common.enums.UserErrorCodeEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
@@ -9,12 +9,12 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Class Name: RandomHandler
- * Class Description: 随机获取一个服务地址
+ * Class Description: 负载均衡-随机模式
  *
  * @author liujm
  * @date 2023-03-15
  */
-public class RandomHandler implements RouteHandler {
+public class RandomHandle implements RouteHandler {
     @Override
     public String routerServer(List<String> values, String key) {
         int size = values.size();

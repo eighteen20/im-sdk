@@ -2,9 +2,10 @@ package cn.ctrlcv.im.serve.config;
 
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.route.RouteHandler;
-import cn.ctrlcv.im.common.route.algorithm.random.RandomHandler;
+import cn.ctrlcv.im.common.route.algorithm.random.consistenthash.ConsistentHashHandle;
+import cn.ctrlcv.im.common.route.algorithm.random.consistenthash.TreeMapConsistentHash;
+import cn.ctrlcv.im.common.route.algorithm.random.loop.LoopHandle;
 import org.I0Itec.zkclient.ZkClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +32,9 @@ public class BeanConfig {
      */
     @Bean
     public RouteHandler routeHandler() {
-        return new RandomHandler();
+//        return new RandomHandle();
+//        return new LoopHandle();
+        return new ConsistentHashHandle(new TreeMapConsistentHash());
     }
 
     @Bean
