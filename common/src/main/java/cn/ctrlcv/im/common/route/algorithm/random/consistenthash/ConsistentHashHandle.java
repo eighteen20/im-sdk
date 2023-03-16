@@ -15,10 +15,7 @@ public class ConsistentHashHandle implements RouteHandler {
 
     private AbstractConsistentHash hash;
 
-    public ConsistentHashHandle() {
-    }
-
-    public ConsistentHashHandle(AbstractConsistentHash hash) {
+    public void setHash(AbstractConsistentHash hash) {
         this.hash = hash;
     }
 

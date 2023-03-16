@@ -26,5 +26,16 @@ public class ImConfig {
      */
     private Integer zkConnectTimeOut;
 
+    /**
+     * 路由的负载均衡算法, 1-随机，2-轮训，3-hash
+     */
+    private Integer imRouteWay = 3;
+
+    /**
+     * 如果选用一致性hash的话({@link ImConfig#getImRouteWay()} = 3).
+     * 配置具体hash算法。1-TreeMap, 2-自定义Map
+     */
+    private Integer consistentHashWay = 1;
+
 
 }
