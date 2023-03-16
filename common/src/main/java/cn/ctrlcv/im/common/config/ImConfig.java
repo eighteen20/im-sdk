@@ -37,5 +37,10 @@ public class ImConfig {
      */
     private Integer consistentHashWay = 1;
 
+    /**
+     * 业务端回调地址
+     */
+    private String callbackUrl;
+
 
 }

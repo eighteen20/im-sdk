@@ -24,6 +24,16 @@ imconfig:
   # 路由的负载均衡算法, 1-随机，2-轮训，3 - hash
   imRouteWay: 3
   consistentHashWay: 1
+  callbackUrl: http:// 127.0.0.1:8623
+
+
+httpclient:
+  maxTotal: 100
+  defaultMaxPerRoute: 50
+  connectTimeout: 2000
+  connectionRequestTimeout: 2000
+  socketTimeout: 5000
+  staleConnectionCheckEnabled: true
 
 
 mybatis-plus:
