@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.serve.user.service.impl;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.config.ImConfig;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.enums.UserErrorCodeEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
@@ -10,6 +12,8 @@ import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
+import cn.ctrlcv.im.serve.utils.CallbackService;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -30,9 +34,14 @@ import java.util.List;
 public class UserServiceImpl implements IUserService {
 
     private final ImUserDataEntityMapper userDataEntityMapper;
+    private final ImConfig imConfig;
+    private final CallbackService callbackService;
 
-    public UserServiceImpl(ImUserDataEntityMapper userDataEntityMapper) {
+
+    public UserServiceImpl(ImUserDataEntityMapper userDataEntityMapper, ImConfig imConfig, CallbackService callbackService) {
         this.userDataEntityMapper = userDataEntityMapper;
+        this.imConfig = imConfig;
+        this.callbackService = callbackService;
     }
 
     public static final int IMPORT_MAX_NUMBER_OF_USERS = 100;
@@ -159,15 +168,9 @@ public class UserServiceImpl implements IUserService {
         update.setUserId(null);
         int update1 = this.userDataEntityMapper.update(update, query);
         if (update1 == 1) {
-            /*UserModifyPack pack = new UserModifyPack();
-            BeanUtils.copyProperties(req, pack);
-            messageProducer.sendToUser(req.getUserId(), req.getClientType(), req.getImei(),
-                    UserEventCommand.USER_MODIFY, pack, req.getAppId());
-
-            if (appConfig.isModifyUserAfterCallback()) {
-                callbackService.callback(req.getAppId(), Constants.CallbackCommand.ModifyUserAfter,
-                        JSONObject.toJSONString(req));
-            }*/
+            if (imConfig.isModifyUserAfterCallback()) {
+                callbackService.callback(req.getAppId(), Constants.CallbackCommand.MODIFY_USER_AFTER, JSONObject.toJSONString(req));
+            }
             return ResponseVO.successResponse();
         }
         throw new ApplicationException(UserErrorCodeEnum.MODIFY_USER_ERROR);

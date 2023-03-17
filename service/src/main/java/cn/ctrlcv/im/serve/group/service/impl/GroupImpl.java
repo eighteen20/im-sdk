@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.serve.group.service.impl;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.config.ImConfig;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.GroupErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.GroupMemberRoleEnum;
 import cn.ctrlcv.im.common.enums.GroupStatusEnum;
@@ -10,6 +12,7 @@ import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMemberMapper;
+import cn.ctrlcv.im.serve.group.model.callback.DestroyGroupAfterCallbackDTO;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
 import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetGroupResp;
@@ -17,6 +20,7 @@ import cn.ctrlcv.im.serve.group.model.resp.GetJoinedGroupResp;
 import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
+import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -50,6 +54,12 @@ public class GroupImpl implements IGroupService {
 
     @Resource
     private IGroupMemberService groupMemberService;
+
+    @Resource
+    private ImConfig imConfig;
+
+    @Resource
+    private CallbackService callbackService;
 
 
     @Override
@@ -138,6 +148,10 @@ public class GroupImpl implements IGroupService {
             this.groupMemberService.addGroupMember(req.getGroupId(), req.getAppId(), dto);
         }
 
+        if (imConfig.isCreateGroupAfterCallback()) {
+            callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.CREATE_GROUP_AFTER, JSONObject.toJSONString(imGroupEntity));
+        }
+
         return ResponseVO.successResponse();
     }
 
@@ -205,6 +219,11 @@ public class GroupImpl implements IGroupService {
         int row = this.groupMapper.update(update, query);
         if (row != 1) {
             throw new ApplicationException(GroupErrorCodeEnum.UPDATE_GROUP_BASE_INFO_ERROR);
+        }
+
+        if (imConfig.isModifyGroupAfterCallback()) {
+            ImGroupEntity groupEntity = this.groupMapper.selectOne(query);
+            callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.UPDATE_GROUP_AFTER, JSONObject.toJSONString(groupEntity));
         }
 
 
@@ -278,6 +297,12 @@ public class GroupImpl implements IGroupService {
         int update1 = this.groupMapper.update(update, objectQueryWrapper);
         if (update1 != 1) {
             throw new ApplicationException(GroupErrorCodeEnum.UPDATE_GROUP_BASE_INFO_ERROR);
+        }
+
+        if (imConfig.isDestroyGroupAfterCallback()) {
+            DestroyGroupAfterCallbackDTO callbackDTO = new DestroyGroupAfterCallbackDTO();
+            callbackDTO.setGroupId(req.getGroupId());
+            callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.DESTROY_GROUP_AFTER, JSONObject.toJSONString(callbackDTO));
         }
 
 

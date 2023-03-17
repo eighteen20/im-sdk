@@ -108,7 +108,96 @@ public class Constants {
          * 好友服务投递给IM服务的消息
          */
         public static final String FRIENDSHIP_2_IM = "friendShip2Pipeline";
+    }
 
 
+    /**
+     * 回调指令
+     */
+    public static class CallbackCommand {
+        /**
+         * 修改用户资料后
+         */
+        public static final String MODIFY_USER_AFTER = "modify.user.after";
+
+        /**
+         * 创建群组后
+         */
+        public static final String CREATE_GROUP_AFTER = "group.create.after";
+
+        /**
+         * 修改群组后
+         */
+        public static final String UPDATE_GROUP_AFTER = "group.update.after";
+
+        /**
+         * 解散群组后
+         */
+        public static final String DESTROY_GROUP_AFTER = "group.destroy.after";
+
+        /**
+         * 群主转移后
+         */
+        public static final String TRANSFER_GROUP_AFTER = "group.transfer.after";
+
+        /**
+         * 添加群成员前
+         */
+        public static final String GROUP_MEMBER_ADD_BEFORE = "group.member.add.before";
+
+        /**
+         * 添加群成员后
+         */
+        public static final String GROUP_MEMBER_ADD_AFTER = "group.member.add.after";
+
+        /**
+         * 删除群成员后
+         */
+        public static final String GROUP_MEMBER_DELETE_AFTER = "group.member.delete.after";
+
+        /**
+         * 添加好友前
+         */
+        public static final String ADD_FRIEND_BEFORE = "friend.add.before";
+
+        /**
+         * 添加好友后
+         */
+        public static final String ADD_FRIEND_AFTER = "friend.add.after";
+
+        /**
+         * 更新好友前
+         */
+        public static final String UPDATE_FRIEND_BEFORE = "friend.update.before";
+
+        /**
+         * 更新好友后
+         */
+        public static final String UPDATE_FRIEND_AFTER = "friend.update.after";
+
+        /**
+         * 删除好友后
+         */
+        public static final String DELETE_FRIEND_AFTER = "friend.delete.after";
+
+        /**
+         * 加入黑名单后
+         */
+        public static final String ADD_BLACK_AFTER = "black.add.after";
+
+        /**
+         * 移出黑名单
+         */
+        public static final String DELETE_BLACK = "black.delete";
+
+        /**
+         * 消息发送后
+         */
+        public static final String SEND_MESSAGE_AFTER = "message.send.after";
+
+        /**
+         * 消息发送前
+         */
+        public static final String SEND_MESSAGE_BEFORE = "message.send.before";
     }
 }

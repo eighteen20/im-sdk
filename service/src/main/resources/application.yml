@@ -25,6 +25,23 @@ imconfig:
   imRouteWay: 3
   consistentHashWay: 1
   callbackUrl: http:// 127.0.0.1:8623
+  modifyUserAfterCallback: false
+  addFriendAfterCallback: false # 添加好友之后回调开关
+  addFriendBeforeCallback: false # 添加好友之前回调开关
+  modifyFriendAfterCallback: false # 修改好友之后回调开关
+  deleteFriendAfterCallback: false # 删除好友之后回调开关
+  addFriendShipBlackAfterCallback: false #添加黑名单之后回调开关
+  deleteFriendShipBlackAfterCallback: false #删除黑名单之后回调开关
+  createGroupAfterCallback: false # 创建群聊之后回调开关
+  modifyGroupAfterCallback: false # 修改群聊之后回调开关
+  destroyGroupAfterCallback: false # 解散群聊之后回调开关
+  deleteGroupMemberAfterCallback: false # 删除群成员之后回调
+  addGroupMemberAfterCallback: false # 拉人入群之后回调
+  addGroupMemberBeforeCallback: false # 拉人入群之前回调
+  sendMessageAfterCallback: false # 发送单聊消息之后
+  sendMessageBeforeCallback: false # 发送单聊消息之前
+  sendGroupMessageAfterCallback: false # 发送群聊消息之后
+  sendGroupMessageBeforeCallback: false # 发送群聊消息之前
 
 
 httpclient:
