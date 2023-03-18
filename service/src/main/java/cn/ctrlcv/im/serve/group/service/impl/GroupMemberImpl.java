@@ -546,4 +546,9 @@ public class GroupMemberImpl implements IGroupMemberService {
 
         return ResponseVO.successResponse();
     }
+
+    @Override
+    public List<String> getGroupMemberId(String groupId, Integer appId) {
+        return this.groupMemberMapper.getGroupMemberId(appId, groupId);
+    }
 }
