@@ -1,10 +1,12 @@
 package cn.ctrlcv.im.serve.user.service.impl;
 
+import cn.ctrlcv.im.codec.pack.user.UserModifyPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.enums.UserErrorCodeEnum;
+import cn.ctrlcv.im.common.enums.command.UserEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.dao.mapper.ImUserDataEntityMapper;
@@ -13,6 +15,7 @@ import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
 import cn.ctrlcv.im.serve.utils.CallbackService;
+import cn.ctrlcv.im.serve.utils.MessageProducer;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
@@ -36,12 +39,15 @@ public class UserServiceImpl implements IUserService {
     private final ImUserDataEntityMapper userDataEntityMapper;
     private final ImConfig imConfig;
     private final CallbackService callbackService;
+    private final MessageProducer messageProducer;
 
 
-    public UserServiceImpl(ImUserDataEntityMapper userDataEntityMapper, ImConfig imConfig, CallbackService callbackService) {
+    public UserServiceImpl(ImUserDataEntityMapper userDataEntityMapper, ImConfig imConfig, CallbackService callbackService,
+                           MessageProducer messageProducer) {
         this.userDataEntityMapper = userDataEntityMapper;
         this.imConfig = imConfig;
         this.callbackService = callbackService;
+        this.messageProducer = messageProducer;
     }
 
     public static final int IMPORT_MAX_NUMBER_OF_USERS = 100;
@@ -168,6 +174,12 @@ public class UserServiceImpl implements IUserService {
         update.setUserId(null);
         int update1 = this.userDataEntityMapper.update(update, query);
         if (update1 == 1) {
+            // TCP 通知
+            UserModifyPack pack = new UserModifyPack();
+            BeanUtils.copyProperties(req, pack);
+            messageProducer.sendToUser(req.getUserId(), req.getClientType(), req.getImei(),
+                    UserEventCommand.USER_MODIFY, pack, req.getAppId());
+            // 回调
             if (imConfig.isModifyUserAfterCallback()) {
                 callbackService.callback(req.getAppId(), Constants.CallbackCommand.MODIFY_USER_AFTER, JSONObject.toJSONString(req));
             }

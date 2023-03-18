@@ -1,8 +1,11 @@
 package cn.ctrlcv.im.serve.friendship.service.impl;
 
+import cn.ctrlcv.im.codec.pack.friendship.ApproveFriendRequestPack;
+import cn.ctrlcv.im.codec.pack.friendship.ReadAllFriendRequestPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.enums.ApproveFriendRequestStatusEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
+import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipRequestEntity;
 import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipRequestMapper;
@@ -11,6 +14,7 @@ import cn.ctrlcv.im.serve.friendship.model.request.FriendDTO;
 import cn.ctrlcv.im.serve.friendship.model.request.ReadFriendShipRequestReq;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipRequestService;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
+import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -35,6 +39,9 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
 
     @Resource
     private IFriendshipService friendshipService;
+
+    @Resource
+    private MessageProducer messageProducer;
 
 
     @Override
@@ -72,7 +79,13 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
             friendshipRequest.setUpdateTime(DateUtil.current());
             this.friendshipRequestMapper.updateById(friendshipRequest);
         }
-        return null;
+
+        // 发送好友请求通知给对方
+        messageProducer.sendToUser(dto.getToId(), null, "", FriendshipEventCommand.FRIENDSHIP_REQUEST,
+                friendshipRequest, appId);
+
+
+        return ResponseVO.successResponse();
     }
 
     @Override
@@ -100,12 +113,19 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
             dto.setAddWording(imFriendShipRequestEntity.getAddWording());
             dto.setRemark(imFriendShipRequestEntity.getRemark());
             dto.setToId(imFriendShipRequestEntity.getToId());
-            ResponseVO responseVO = this.friendshipService.doAddFriend(imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
+            ResponseVO responseVO = this.friendshipService.doAddFriend(req, imFriendShipRequestEntity.getFromId(), dto, req.getAppId());
 
             if (!responseVO.isOk() && responseVO.getCode() != FriendShipErrorCodeEnum.TO_IS_YOUR_FRIEND.getCode()) {
                 return responseVO;
             }
         }
+
+        // 发送好友请求审批通知给对方
+        ApproveFriendRequestPack pack = new ApproveFriendRequestPack();
+        pack.setId(req.getId());
+        pack.setStatus(req.getStatus());
+        messageProducer.sendToUser(imFriendShipRequestEntity.getFromId(), req.getClientType(), req.getImei(),
+                FriendshipEventCommand.FRIENDSHIP_REQUEST_APPROVAL, pack, req.getAppId());
 
         return ResponseVO.successResponse();
     }
@@ -132,6 +152,11 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
         update.setReadStatus(1);
         this.friendshipRequestMapper.update(update, query);
 
+        // 通知
+        ReadAllFriendRequestPack pack = new ReadAllFriendRequestPack();
+        pack.setFromId(req.getFromId());
+        messageProducer.sendToUser(req.getFromId(), req.getClientType(), req.getImei(), FriendshipEventCommand.FRIENDSHIP_REQUEST_READ,
+                pack, req.getAppId());
 
         return ResponseVO.successResponse();
     }

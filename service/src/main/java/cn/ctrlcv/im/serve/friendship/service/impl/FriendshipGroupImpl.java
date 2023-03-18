@@ -1,9 +1,13 @@
 package cn.ctrlcv.im.serve.friendship.service.impl;
 
+import cn.ctrlcv.im.codec.pack.friendship.AddFriendGroupPack;
+import cn.ctrlcv.im.codec.pack.friendship.DeleteFriendGroupPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
+import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipGroupEntity;
 import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipGroupMapper;
 import cn.ctrlcv.im.serve.friendship.model.request.AddFriendShipGroupMemberReq;
@@ -11,6 +15,7 @@ import cn.ctrlcv.im.serve.friendship.model.request.AddFriendShipGroupReq;
 import cn.ctrlcv.im.serve.friendship.model.request.DeleteFriendShipGroupReq;
 import cn.ctrlcv.im.serve.friendship.service.IFriendShipGroupMemberService;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipGroupService;
+import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.dao.DuplicateKeyException;
@@ -34,6 +39,9 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
 
     @Resource
     private IFriendShipGroupMemberService groupMemberService;
+
+    @Resource
+    private MessageProducer messageProducer;
 
 
     @Override
@@ -78,6 +86,13 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
             return ResponseVO.errorResponse(FriendShipErrorCodeEnum.FRIEND_SHIP_GROUP_IS_EXIST);
         }
 
+        // 入群通知
+        AddFriendGroupPack pack = new AddFriendGroupPack();
+        pack.setFromId(req.getFromId());
+        pack.setGroupName(req.getGroupName());
+        messageProducer.sendToUserExceptClient(req.getFromId(), FriendshipEventCommand.FRIENDSHIP_GROUP_ADD,
+                pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         return ResponseVO.successResponse();
     }
 
@@ -100,6 +115,12 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
                 this.groupMapper.updateById(update);
                 this.groupMemberService.clearGroupMember(entity.getGroupId());
 
+                // 退群通知
+                DeleteFriendGroupPack pack = new DeleteFriendGroupPack();
+                pack.setFromId(req.getFromId());
+                pack.setGroupName(groupName);
+                messageProducer.sendToUserExceptClient(req.getFromId(), FriendshipEventCommand.FRIENDSHIP_GROUP_DELETE,
+                        pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
             }
         }
         return ResponseVO.successResponse();

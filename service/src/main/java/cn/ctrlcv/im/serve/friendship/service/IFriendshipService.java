@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.serve.friendship.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.RequestBase;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
@@ -37,12 +38,13 @@ public interface IFriendshipService {
     /**
      * 添加好友（无需验证）
      *
+     * @param requestBase {@link RequestBase}
      * @param fromId 发起人
      * @param dto {@link FriendDTO}
      * @param appId 应用ID
      * @return 无
      */
-    ResponseVO<?> doAddFriend(String fromId, FriendDTO dto, Integer appId);
+    ResponseVO<?> doAddFriend(RequestBase requestBase, String fromId, FriendDTO dto, Integer appId);
 
 
     /**

@@ -37,9 +37,9 @@ public class MessageProducer {
      * 投递消息给用户
      * <p>对{@link #sendMessage(UserSession, Object)}的封装</p>
      *
-     * @param toId 接收用户ID
+     * @param toId    接收用户ID
      * @param command 投递指令
-     * @param msg 消息内容
+     * @param msg     消息内容
      * @param session {@link UserSession}
      * @return 是否投递成功
      */
@@ -68,7 +68,7 @@ public class MessageProducer {
     public boolean sendMessage(UserSession userSession, Object msg) {
         try {
             log.info(" ===== 投递消息：{} ===== ", msg);
-            rabbitTemplate.convertAndSend("", String.valueOf(userSession.getBrokerId()),  msg);
+            rabbitTemplate.convertAndSend("", String.valueOf(userSession.getBrokerId()), msg);
             return true;
         } catch (Exception e) {
             log.error(" ===== 投递消息失败：{} ===== ", e.getMessage());
@@ -82,19 +82,19 @@ public class MessageProducer {
     /**
      * 发送给用户所有端的方法
      *
-     * @param toId 用户ID
+     * @param toId    用户ID
      * @param command 消息指令
-     * @param data 消息内容
-     * @param appId 应用ID
+     * @param data    消息内容
+     * @param appId   应用ID
      * @return 发送成功的客户端 {@link List}<{@link ClientInfo}>
      */
-    public List<ClientInfo> sendToUser(String toId, Command command, Object data, Integer appId){
+    public List<ClientInfo> sendToUser(String toId, Command command, Object data, Integer appId) {
         List<UserSession> userSession = userSessionUtils.getUserSession(appId, toId);
         List<ClientInfo> list = new ArrayList<>();
         for (UserSession session : userSession) {
             boolean b = sendPack(toId, command, data, session);
-            if(b){
-                list.add(new ClientInfo(session.getAppId(),session.getClientType(),session.getImei()));
+            if (b) {
+                list.add(new ClientInfo(session.getAppId(), session.getClientType(), session.getImei()));
             }
         }
         return list;
@@ -103,49 +103,51 @@ public class MessageProducer {
 
     /**
      * 发送给用户所有端的方法
+     * （兼容非管理员调用，某个用户发起调用，则不用给自己发通知）
      *
-     * @param toId 用户ID
+     * @param toId    用户ID
      * @param command 消息指令
-     * @param data 消息内容
-     * @param appId 应用ID
+     * @param data    消息内容
+     * @param appId   应用ID
      * @return 发送成功的客户端 {@link List}<{@link ClientInfo}>
      */
-    public void sendToUser(String toId, Integer clientType,String imei, Command command, Object data, Integer appId){
-        if(clientType != null && StringUtils.isNotBlank(imei)){
+    public void sendToUser(String toId, Integer clientType, String imei, Command command, Object data, Integer appId) {
+        // 如果客户端类型和IMEI都不为空，则是用户端调用，不需要给自己发通知
+        if (clientType != null && StringUtils.isNotBlank(imei)) {
             ClientInfo clientInfo = new ClientInfo(appId, clientType, imei);
-            sendToUserExceptClient(toId,command,data,clientInfo);
-        }else{
-            sendToUser(toId,command,data,appId);
+            sendToUserExceptClient(toId, command, data, clientInfo);
+        } else {
+            sendToUser(toId, command, data, appId);
         }
     }
 
     /**
      * 发送给某个用户的指定客户端
      *
-     * @param toId 用户ID
-     * @param command 指令
-     * @param data 消息内容
+     * @param toId       用户ID
+     * @param command    指令
+     * @param data       消息内容
      * @param clientInfo 客户端信息
      */
-    public void sendToUser(String toId, Command command, Object data, ClientInfo clientInfo){
+    public void sendToUser(String toId, Command command, Object data, ClientInfo clientInfo) {
         UserSession userSession = userSessionUtils.getUserSession(clientInfo.getAppId(), toId, clientInfo.getClientType(),
                 clientInfo.getImei());
-        sendPack(toId,command,data,userSession);
+        sendPack(toId, command, data, userSession);
     }
 
     /**
      * 发送给除了某一端的其他端
      *
-     * @param toId 用户ID
-     * @param command 指令
-     * @param data 消息内容
+     * @param toId       用户ID
+     * @param command    指令
+     * @param data       消息内容
      * @param clientInfo 客户端信息
      */
-    public void sendToUserExceptClient(String toId, Command command, Object data, ClientInfo clientInfo){
+    public void sendToUserExceptClient(String toId, Command command, Object data, ClientInfo clientInfo) {
         List<UserSession> userSession = userSessionUtils.getUserSession(clientInfo.getAppId(), toId);
         for (UserSession session : userSession) {
-            if(!isMatch(session,clientInfo)){
-                sendPack(toId,command,data,session);
+            if (!isMatch(session, clientInfo)) {
+                sendPack(toId, command, data, session);
             }
         }
     }
@@ -164,7 +166,6 @@ public class MessageProducer {
                         && Objects.equals(sessionDto.getImei(), clientInfo.getImei())
                         && Objects.equals(sessionDto.getClientType(), clientInfo.getClientType());
     }
-
 
 
 }
