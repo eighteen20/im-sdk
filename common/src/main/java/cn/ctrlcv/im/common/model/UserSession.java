@@ -43,4 +43,6 @@ public class UserSession {
      * 分布式环境下，记录用户登录在哪个节点的IP
      */
     private String brokerHost;
+
+    private String imei;
 }

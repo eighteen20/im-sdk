@@ -21,6 +21,12 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>cn.ctrlcv</groupId>
+            <artifactId>codec</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
         <!-- rabbitmq -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

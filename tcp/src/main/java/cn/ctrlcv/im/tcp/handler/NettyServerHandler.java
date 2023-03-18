@@ -61,6 +61,8 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             userSession.setUserId(loginPack.getUserId());
             userSession.setConnectState(ImConnectStatusEnum.ONLINE_STATUS.getCode());
             userSession.setBrokerId(this.brokerId);
+            userSession.setImei(msg.getMessageHeader().getImei());
+
             try {
                 userSession.setBrokerHost(InetAddress.getLocalHost().getHostAddress());
             } catch (UnknownHostException e) {
