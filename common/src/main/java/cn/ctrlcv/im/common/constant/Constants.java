@@ -63,6 +63,12 @@ public class Constants {
          * 用户上线通知channel
          */
         public static final String USER_LOGIN_CHANNEL = "signal/channel/LOGIN_USER_INNER_QUEUE";
+
+
+        /**
+         * userSign，格式：appId:userSign:
+         */
+        public static final String USER_SIGN = "userSign";
     }
 
 

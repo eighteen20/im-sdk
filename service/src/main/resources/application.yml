@@ -52,6 +52,7 @@ server:
   port: 8000
 
 imconfig:
+  privateKey: 123456
   # zookeeper 配置
   zkAddr: 127.0.0.1:2181
   zkConnectTimeOut: 5000

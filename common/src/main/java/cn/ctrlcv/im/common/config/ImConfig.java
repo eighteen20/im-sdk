@@ -17,6 +17,11 @@ import org.springframework.stereotype.Component;
 public class ImConfig {
 
     /**
+     * 私钥
+     */
+    private String privateKey;
+
+    /**
      * zk连接地址
      */
     private String zkAddr;
