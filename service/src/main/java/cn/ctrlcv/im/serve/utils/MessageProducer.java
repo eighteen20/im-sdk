@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.serve.utils;
 
 import cn.ctrlcv.im.codec.pack.MessagePack;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.Command;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.UserSession;
@@ -68,7 +69,7 @@ public class MessageProducer {
     public boolean sendMessage(UserSession userSession, Object msg) {
         try {
             log.info(" ===== 投递消息：{} ===== ", msg);
-            rabbitTemplate.convertAndSend("", String.valueOf(userSession.getBrokerId()), msg);
+            rabbitTemplate.convertAndSend(Constants.RabbitConstants.MESSAGE_SERVICE_2_IM, String.valueOf(userSession.getBrokerId()), msg);
             return true;
         } catch (Exception e) {
             log.error(" ===== 投递消息失败：{} ===== ", e.getMessage());

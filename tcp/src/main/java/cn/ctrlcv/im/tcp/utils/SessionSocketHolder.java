@@ -160,4 +160,22 @@ public class SessionSocketHolder {
     }
 
 
+    /**
+     * 获取当前netty节点，指定用户的所有的channel
+     *
+     * @param appId 应用ID
+     * @param toId 用户Id
+     * @param clientType 客户端类型
+     * @param imei 客户端设备唯一识别号
+     *
+     * @return {@link NioSocketChannel}
+     */
+    public static NioSocketChannel get(Integer appId, String toId, int clientType, String imei) {
+        UserClientDTO clientDTO = new UserClientDTO();
+        clientDTO.setAppId(appId);
+        clientDTO.setClientType(clientType);
+        clientDTO.setUserId(toId);
+        clientDTO.setImei(imei);
+        return CHANNEL_MAP.get(clientDTO);
+    }
 }
