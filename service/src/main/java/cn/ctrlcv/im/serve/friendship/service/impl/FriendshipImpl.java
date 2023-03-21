@@ -544,4 +544,22 @@ public class FriendshipImpl implements IFriendshipService {
 
         return ResponseVO.successResponse(result);
     }
+
+    @Override
+    public ResponseVO<ImFriendshipEntity> getRelation(GetRelationReq req) {
+        return getImFriendshipEntityResponseVO(req.getAppId(), req.getFromId(), req.getToId(), req);
+    }
+
+    private ResponseVO<ImFriendshipEntity> getImFriendshipEntityResponseVO(Integer appId, String fromId, String toId, GetRelationReq req) {
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.eq("app_id", appId);
+        query.eq("from_id", fromId);
+        query.eq("to_id", toId);
+
+        ImFriendshipEntity entity = this.friendshipMapper.selectOne(query);
+        if(entity == null){
+            return ResponseVO.errorResponse(FriendShipErrorCodeEnum.RELATIONSHIP_IS_NOT_EXIST);
+        }
+        return ResponseVO.successResponse(entity);
+    }
 }

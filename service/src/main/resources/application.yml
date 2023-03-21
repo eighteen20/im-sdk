@@ -77,6 +77,8 @@ imconfig:
   sendMessageBeforeCallback: false # 发送单聊消息之前
   sendGroupMessageAfterCallback: false # 发送群聊消息之后
   sendGroupMessageBeforeCallback: false # 发送群聊消息之前
+  sendMessageCheckFriend: true # 发送单聊消息之前检查好友关系
+  sendMessageCheckBlack: true # 发送单聊消息之前检查黑名单关系
 
 
 httpclient:

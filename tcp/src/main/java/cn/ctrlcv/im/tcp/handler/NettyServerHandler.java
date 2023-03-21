@@ -7,6 +7,7 @@ import cn.ctrlcv.im.common.enums.ImConnectStatusEnum;
 import cn.ctrlcv.im.common.enums.command.SystemCommand;
 import cn.ctrlcv.im.common.model.UserClientDTO;
 import cn.ctrlcv.im.common.model.UserSession;
+import cn.ctrlcv.im.tcp.publish.MqMessageProducer;
 import cn.ctrlcv.im.tcp.redis.RedisManager;
 import cn.ctrlcv.im.tcp.utils.SessionSocketHolder;
 import com.alibaba.fastjson.JSON;
@@ -93,6 +94,8 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
         } else if (SystemCommand.PING.getCommand() == command) {
             // 最后一次读写事件时间
             context.channel().attr(AttributeKey.valueOf(Constants.READ_TIME)).set(System.currentTimeMillis());
+        } else {
+            MqMessageProducer.sendMessage(msg, command);
         }
 
     }

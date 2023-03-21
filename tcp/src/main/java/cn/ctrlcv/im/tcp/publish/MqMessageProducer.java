@@ -1,6 +1,9 @@
 package cn.ctrlcv.im.tcp.publish;
 
+import cn.ctrlcv.im.codec.proto.Message;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.tcp.utils.MqFactory;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +26,20 @@ public class MqMessageProducer {
      *
      * @param message 各类消息
      */
-    public static void sendMessage(Object message) {
-        Channel channel = null;
-        // TODO 后面补充
-        String channelName = "";
+    public static void sendMessage(Message message, Integer command) {
+        Channel channel;
+        String channelName = Constants.RabbitConstants.IM_2_MESSAGE_SERVICE;
 
         try {
             channel = MqFactory.getChannel(channelName);
-            channel.basicPublish(channelName, "", null, JSONObject.toJSONString(message).getBytes());
+
+            JSONObject json = (JSONObject) JSON.toJSON(message.getMessagePack());
+            json.put("command", command);
+            json.put("clientType", message.getMessageHeader().getClientType());
+            json.put("imei", message.getMessageHeader().getImei());
+            json.put("appId", message.getMessageHeader().getAppId());
+
+            channel.basicPublish(channelName, "", null, json.toJSONString().getBytes());
         } catch (IOException | TimeoutException e) {
             log.error("消息投递异常：{}", e.getMessage());
         }

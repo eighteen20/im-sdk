@@ -118,4 +118,12 @@ public interface IFriendshipService {
      * @return {@link CheckFriendShipResp}
      */
     ResponseVO<CheckFriendShipResp> checkBlack(CheckFriendShipReq req);
+
+    /**
+     * 获取好友关系
+     *
+     * @param fromReq {@link GetRelationReq}
+     * @return {@link ImFriendshipEntity}
+     */
+    ResponseVO<ImFriendshipEntity> getRelation(GetRelationReq fromReq);
 }

@@ -133,5 +133,15 @@ public class ImConfig {
      */
     private boolean sendGroupMessageBeforeCallback;
 
+    /**
+     * 发送消息是否校验关系链
+     */
+    private boolean sendMessageCheckFriend;
+
+    /**
+     * 发送消息是否校验黑名单
+     */
+    private boolean sendMessageCheckBlack;
+
 
 }
