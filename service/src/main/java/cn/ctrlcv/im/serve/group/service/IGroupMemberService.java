@@ -137,4 +137,14 @@ public interface IGroupMemberService {
      * @return 群成员ID集合
      */
     List<String> getGroupMemberId(String groupId, Integer appId);
+
+
+    /**
+     * 获取群组管理员
+     *
+     * @param groupId 群组ID
+     * @param appId 应用ID
+     * @return 群成员ID集合
+     */
+    List<GroupMemberDTO> getGroupManager(String groupId, Integer appId);
 }

@@ -1,5 +1,8 @@
 package cn.ctrlcv.im.serve.group.service.impl;
 
+import cn.ctrlcv.im.codec.pack.group.CreateGroupPack;
+import cn.ctrlcv.im.codec.pack.group.DestroyGroupPack;
+import cn.ctrlcv.im.codec.pack.group.UpdateGroupInfoPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
@@ -7,7 +10,9 @@ import cn.ctrlcv.im.common.enums.GroupErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.GroupMemberRoleEnum;
 import cn.ctrlcv.im.common.enums.GroupStatusEnum;
 import cn.ctrlcv.im.common.enums.GroupTypeEnum;
+import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
@@ -21,6 +26,7 @@ import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
 import cn.ctrlcv.im.serve.utils.CallbackService;
+import cn.ctrlcv.im.serve.utils.GroupMessageProducer;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
@@ -60,6 +66,9 @@ public class GroupImpl implements IGroupService {
 
     @Resource
     private CallbackService callbackService;
+
+    @Resource
+    private GroupMessageProducer groupMessageProducer;
 
 
     @Override
@@ -152,6 +161,11 @@ public class GroupImpl implements IGroupService {
             callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.CREATE_GROUP_AFTER, JSONObject.toJSONString(imGroupEntity));
         }
 
+        CreateGroupPack createGroupPack = new CreateGroupPack();
+        BeanUtils.copyProperties(imGroupEntity, createGroupPack);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.CREATED_GROUP, createGroupPack
+                , new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         return ResponseVO.successResponse();
     }
 
@@ -225,6 +239,11 @@ public class GroupImpl implements IGroupService {
             ImGroupEntity groupEntity = this.groupMapper.selectOne(query);
             callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.UPDATE_GROUP_AFTER, JSONObject.toJSONString(groupEntity));
         }
+
+        UpdateGroupInfoPack pack = new UpdateGroupInfoPack();
+        BeanUtils.copyProperties(req, pack);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.UPDATED_GROUP,
+                pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
 
         return ResponseVO.successResponse();
@@ -305,6 +324,10 @@ public class GroupImpl implements IGroupService {
             callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.DESTROY_GROUP_AFTER, JSONObject.toJSONString(callbackDTO));
         }
 
+        DestroyGroupPack pack = new DestroyGroupPack();
+        pack.setGroupId(req.getGroupId());
+        groupMessageProducer.producer(req.getOperator(),
+                GroupEventCommand.DESTROY_GROUP, pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
     }

@@ -1,5 +1,9 @@
 package cn.ctrlcv.im.serve.group.service.impl;
 
+import cn.ctrlcv.im.codec.pack.group.AddGroupMemberPack;
+import cn.ctrlcv.im.codec.pack.group.GroupMemberSpeakPack;
+import cn.ctrlcv.im.codec.pack.group.RemoveGroupMemberPack;
+import cn.ctrlcv.im.codec.pack.group.UpdateGroupMemberPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
@@ -7,7 +11,9 @@ import cn.ctrlcv.im.common.enums.GroupErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.GroupMemberRoleEnum;
 import cn.ctrlcv.im.common.enums.GroupStatusEnum;
 import cn.ctrlcv.im.common.enums.GroupTypeEnum;
+import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMemberMapper;
@@ -22,6 +28,7 @@ import cn.ctrlcv.im.serve.group.service.IGroupService;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.service.IUserService;
 import cn.ctrlcv.im.serve.utils.CallbackService;
+import cn.ctrlcv.im.serve.utils.GroupMessageProducer;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -66,6 +73,9 @@ public class GroupMemberImpl implements IGroupMemberService {
     @Resource
     private CallbackService callbackService;
 
+    @Resource
+    private GroupMessageProducer groupMessageProducer;
+
 
     @Override
     public ResponseVO<?> importGroupMember(ImportGroupMemberReq req) {
@@ -103,7 +113,7 @@ public class GroupMemberImpl implements IGroupMemberService {
     @Transactional
     public ResponseVO<?> addGroupMember(String groupId, Integer appId, GroupMemberDTO dto) {
         ResponseVO<ImUserDataEntity> singleUserInfo = this.userService.getSingleUserInfo(dto.getMemberId(), appId);
-        if(!singleUserInfo.isOk()){
+        if (!singleUserInfo.isOk()) {
             return singleUserInfo;
         }
 
@@ -290,6 +300,12 @@ public class GroupMemberImpl implements IGroupMemberService {
             resp.add(addMemberResp);
         }
 
+        AddGroupMemberPack addGroupMemberPack = new AddGroupMemberPack();
+        addGroupMemberPack.setGroupId(req.getGroupId());
+        addGroupMemberPack.setMembers(successId);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.ADDED_MEMBER, addGroupMemberPack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
         if (imConfig.isAddGroupMemberAfterCallback()) {
             AddGroupMemberAfterCallbackDTO callbackDTO = new AddGroupMemberAfterCallbackDTO();
             callbackDTO.setGroupId(req.getGroupId());
@@ -358,6 +374,12 @@ public class GroupMemberImpl implements IGroupMemberService {
         ResponseVO<?> responseVO = this.groupMemberService.removeGroupMember(req.getGroupId(), req.getAppId(), req.getMemberId());
 
         if (responseVO.isOk()) {
+            RemoveGroupMemberPack removeGroupMemberPack = new RemoveGroupMemberPack();
+            removeGroupMemberPack.setGroupId(req.getGroupId());
+            removeGroupMemberPack.setMember(req.getMemberId());
+            groupMessageProducer.producer(req.getMemberId(), GroupEventCommand.DELETED_MEMBER, removeGroupMemberPack,
+                    new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
             if (imConfig.isDeleteGroupMemberAfterCallback()) {
                 callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.GROUP_MEMBER_DELETE_AFTER, JSONObject.toJSONString(req));
             }
@@ -371,7 +393,7 @@ public class GroupMemberImpl implements IGroupMemberService {
     @Override
     public ResponseVO<?> removeGroupMember(String groupId, Integer appId, String memberId) {
         ResponseVO<ImUserDataEntity> singleUserInfo = this.userService.getSingleUserInfo(memberId, appId);
-        if(!singleUserInfo.isOk()){
+        if (!singleUserInfo.isOk()) {
             return singleUserInfo;
         }
 
@@ -426,16 +448,16 @@ public class GroupMemberImpl implements IGroupMemberService {
             }
 
             //如果要修改权限相关的则走下面的逻辑
-            if(req.getRole() != null){
+            if (req.getRole() != null) {
                 //获取被操作人的是否在群内
                 ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.getRoleInGroupOne(req.getGroupId(), req.getMemberId(), req.getAppId());
-                if(!roleInGroupOne.isOk()){
+                if (!roleInGroupOne.isOk()) {
                     return roleInGroupOne;
                 }
 
                 //获取操作人权限
                 ResponseVO<GetRoleInGroupResp> operateRoleInGroupOne = this.getRoleInGroupOne(req.getGroupId(), req.getOperator(), req.getAppId());
-                if(!operateRoleInGroupOne.isOk()){
+                if (!operateRoleInGroupOne.isOk()) {
                     return operateRoleInGroupOne;
                 }
 
@@ -445,12 +467,12 @@ public class GroupMemberImpl implements IGroupMemberService {
                 boolean isManager = roleInfo == GroupMemberRoleEnum.MANAGER.getCode();
 
                 //不是管理员不能修改权限
-                if(req.getRole() != null && !isOwner && !isManager){
+                if (req.getRole() != null && !isOwner && !isManager) {
                     return ResponseVO.errorResponse(GroupErrorCodeEnum.THIS_OPERATE_NEED_MANAGER_ROLE);
                 }
 
                 //管理员只有群主能够设置
-                if(req.getRole() != null && req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() && !isOwner){
+                if (req.getRole() != null && req.getRole() == GroupMemberRoleEnum.MANAGER.getCode() && !isOwner) {
                     return ResponseVO.errorResponse(GroupErrorCodeEnum.THIS_OPERATE_NEED_OWNER_ROLE);
                 }
 
@@ -464,7 +486,7 @@ public class GroupMemberImpl implements IGroupMemberService {
         }
 
         //不能直接修改为群主
-        if(req.getRole() != null && req.getRole() != GroupMemberRoleEnum.OWNER.getCode()){
+        if (req.getRole() != null && req.getRole() != GroupMemberRoleEnum.OWNER.getCode()) {
             update.setRole(req.getRole());
         }
 
@@ -473,6 +495,11 @@ public class GroupMemberImpl implements IGroupMemberService {
         objectUpdateWrapper.eq(ImGroupMemberEntity.COL_MEMBER_ID, req.getMemberId());
         objectUpdateWrapper.eq(ImGroupMemberEntity.COL_GROUP_ID, req.getGroupId());
         this.groupMemberMapper.update(update, objectUpdateWrapper);
+
+        UpdateGroupMemberPack pack = new UpdateGroupMemberPack();
+        BeanUtils.copyProperties(req, pack);
+        groupMessageProducer.producer(req.getOperator(), GroupEventCommand.UPDATED_MEMBER, pack,
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
         return ResponseVO.successResponse();
     }
@@ -526,7 +553,7 @@ public class GroupMemberImpl implements IGroupMemberService {
         }
 
         ImGroupMemberEntity imGroupMemberEntity = new ImGroupMemberEntity();
-        if(memberRole == null){
+        if (memberRole == null) {
             //获取被操作的权限
             ResponseVO<GetRoleInGroupResp> roleInGroupOne = this.getRoleInGroupOne(req.getGroupId(), req.getMemberId(), req.getAppId());
             if (!roleInGroupOne.isOk()) {
@@ -536,13 +563,19 @@ public class GroupMemberImpl implements IGroupMemberService {
         }
 
         imGroupMemberEntity.setGroupMemberId(memberRole.getGroupMemberId());
-        if(req.getSpeakDate() > 0){
+        if (req.getSpeakDate() > 0) {
             imGroupMemberEntity.setSpeakDate(System.currentTimeMillis() + req.getSpeakDate());
-        }else{
+        } else {
             imGroupMemberEntity.setSpeakDate(req.getSpeakDate());
         }
 
         int i = this.groupMemberMapper.updateById(imGroupMemberEntity);
+        if (i == 1) {
+            GroupMemberSpeakPack pack = new GroupMemberSpeakPack();
+            BeanUtils.copyProperties(req, pack);
+            groupMessageProducer.producer(req.getOperator(), GroupEventCommand.SPEAK_GROUP_MEMBER, pack,
+                    new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+        }
 
         return ResponseVO.successResponse();
     }
@@ -550,5 +583,10 @@ public class GroupMemberImpl implements IGroupMemberService {
     @Override
     public List<String> getGroupMemberId(String groupId, Integer appId) {
         return this.groupMemberMapper.getGroupMemberId(appId, groupId);
+    }
+
+    @Override
+    public List<GroupMemberDTO> getGroupManager(String groupId, Integer appId) {
+        return this.groupMemberMapper.getGroupManager(appId, groupId);
     }
 }
