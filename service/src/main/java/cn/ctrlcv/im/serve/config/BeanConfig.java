@@ -7,8 +7,11 @@ import cn.ctrlcv.im.common.enums.SystemErrorEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.route.RouteHandler;
 import cn.ctrlcv.im.common.route.algorithm.random.consistenthash.AbstractConsistentHash;
+import cn.ctrlcv.im.serve.utils.SnowflakeIdWorker;
 import cn.hutool.core.util.ObjectUtil;
 import org.I0Itec.zkclient.ZkClient;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -68,8 +71,30 @@ public class BeanConfig {
         return routeHandler;
     }
 
+    /**
+     * 注册ZK客户端
+     *
+     * @return {@link ZkClient}
+     */
     @Bean
     public ZkClient buildZkClient() {
         return new ZkClient(imConfig.getZkAddr(), imConfig.getZkConnectTimeOut());
     }
+
+
+    @Bean
+    public EasySqlInjector easySqlInjector () {
+        return new EasySqlInjector();
+    }
+
+    /**
+     * 注册雪花算法
+     *
+     * @return {@link SnowflakeIdWorker}
+     */
+    @Bean
+    public SnowflakeIdWorker buildSnowflakeSeq() throws Exception {
+        return new SnowflakeIdWorker(0);
+    }
+
 }

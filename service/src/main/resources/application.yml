@@ -21,7 +21,7 @@ spring:
   rabbitmq:
     host: 127.0.0.1
     port: 10040
-    addresses: 127.0.0.1
+#    addresses: 127.0.0.1
     username: admin
     password: admin123
     #    virtual-host:

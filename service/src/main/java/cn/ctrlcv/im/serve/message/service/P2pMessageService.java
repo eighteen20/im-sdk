@@ -28,6 +28,9 @@ public class P2pMessageService {
     @Resource
     private MessageProducer messageProducer;
 
+    @Resource
+    private MessageStoreService messageStoreService;
+
     public void process(MessageContent messageContent) {
         String fromId = messageContent.getFromId();
         String toId = messageContent.getToId();
@@ -36,6 +39,8 @@ public class P2pMessageService {
         // 前置校验
         ResponseVO responseVO = this.checkImServicePermission(fromId, toId, appId);
         if (responseVO.isOk()) {
+            // 消息持久化
+            this.messageStoreService.storeP2pMessage(messageContent);
             // 回ACK给发起方
             this.sendAckToFromer(messageContent, responseVO);
             // 发给发送方同步在线的其他设备
