@@ -30,6 +30,11 @@ public class MqMessageProducer {
         Channel channel;
         String channelName = Constants.RabbitConstants.IM_2_MESSAGE_SERVICE;
 
+        if (command.toString().startsWith("2")) {
+            // 群聊消息
+            channelName = Constants.RabbitConstants.IM_2_GROUP_SERVICE;
+        }
+
         try {
             channel = MqFactory.getChannel(channelName);
 

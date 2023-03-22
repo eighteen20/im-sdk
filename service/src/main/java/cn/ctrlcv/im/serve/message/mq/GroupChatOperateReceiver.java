@@ -1,9 +1,10 @@
 package cn.ctrlcv.im.serve.message.mq;
 
 import cn.ctrlcv.im.common.constant.Constants;
+import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
-import cn.ctrlcv.im.common.model.message.MessageContent;
-import cn.ctrlcv.im.serve.message.service.P2pMessageService;
+import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
+import cn.ctrlcv.im.serve.message.service.GroupMessageService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
@@ -24,18 +25,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Class Name: ChatOperateReceiver
- * Class Description: 聊天消息接收
+ * Class Name: GroupChatOperateReceiver
+ * Class Description: 群聊消息接收分发
  *
  * @author liujm
- * @date 2023-03-21
+ * @date 2023-03-22
  */
 @Slf4j
 @Component
-public class ChatOperateReceiver {
+public class GroupChatOperateReceiver {
 
     @Resource
-    private P2pMessageService p2pMessageService;
+    private GroupMessageService groupMessageService;
 
     /**
      * 监听订阅的MQ消息
@@ -46,8 +47,8 @@ public class ChatOperateReceiver {
      */
     @RabbitListener(
             bindings = @QueueBinding(
-                    value = @Queue(value = Constants.RabbitConstants.IM_2_MESSAGE_SERVICE, durable = "true"),
-                    exchange = @Exchange(value = Constants.RabbitConstants.IM_2_MESSAGE_SERVICE, type = "topic", durable = "true")
+                    value = @Queue(value = Constants.RabbitConstants.IM_2_GROUP_SERVICE, durable = "true"),
+                    exchange = @Exchange(value = Constants.RabbitConstants.IM_2_GROUP_SERVICE, type = "topic", durable = "true")
             ),
             concurrency = "1"
     )
@@ -62,18 +63,21 @@ public class ChatOperateReceiver {
             JSONObject jsonObject = JSON.parseObject(msg);
             Integer command = jsonObject.getInteger("command");
 
-            if (command.equals(MessageCommand.MSG_P2P.getCommand())) {
+            if (command.equals(GroupEventCommand.MSG_GROUP.getCommand())) {
                 // 处理消息
-                MessageContent messageContent = jsonObject.toJavaObject(MessageContent.class);
-                p2pMessageService.process(messageContent);
+                GroupChatMessageContent messageContent = jsonObject.toJavaObject(GroupChatMessageContent.class);
+                groupMessageService.process(messageContent);
+            } else if (command.equals(GroupEventCommand.MSG_GROUP_READED.getCommand())) {
+
             }
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
-            log.error("处理消息出现异常：{}", e.getMessage());
+            log.error("处理群聊消息出现异常：{}", e.getMessage());
             log.error("RMQ_CHAT_TRAN_ERROR", e);
             log.error("NACK_MSG:{}", msg);
             //第一个false 表示不批量拒绝，第二个false表示不重回队列
             channel.basicNack(deliveryTag, false, false);
         }
     }
+
 }
