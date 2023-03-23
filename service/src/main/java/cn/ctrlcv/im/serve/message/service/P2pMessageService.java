@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.serve.message.service;
 
 import cn.ctrlcv.im.codec.pack.ChatMessageAck;
+import cn.ctrlcv.im.codec.pack.message.MessageReceiveServerAckPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
@@ -13,8 +14,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,18 +44,18 @@ public class P2pMessageService {
      * 线程池, 加快消息处理速度
      */
     private final ThreadPoolExecutor threadPoolExecutor;
+
     /*
      * 线程池初始化
-     */
-    {
+     */ {
         AtomicInteger num = new AtomicInteger(0);
         threadPoolExecutor = new ThreadPoolExecutor(8, 8, 60, TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>(1000), r -> {
-                    Thread thread = new Thread(r);
-                    thread.setDaemon(true);
-                    thread.setName("p2p-message-service-" + num.getAndIncrement());
-                    return thread;
-                });
+            Thread thread = new Thread(r);
+            thread.setDaemon(true);
+            thread.setName("p2p-message-service-" + num.getAndIncrement());
+            return thread;
+        });
     }
 
     public void process(MessageContent messageContent) {
@@ -67,7 +68,11 @@ public class P2pMessageService {
                 // 发给发送方同步在线的其他设备
                 this.sendToFromerOtherDevice(messageContent, messageContent);
                 // 将消息发动给接收方的在线端口
-                this.sendToReceiver(messageContent);
+                List<ClientInfo> clientInfoList = this.sendToReceiver(messageContent);
+                if (clientInfoList == null || clientInfoList.isEmpty()) {
+                    // 发送接收确认给发送方，要带上是服务端发送的标志
+                    this.receiveAck(messageContent);
+                }
             } catch (Exception e) {
                 log.error("P2P消息处理异常", e);
             }
@@ -75,14 +80,33 @@ public class P2pMessageService {
 
     }
 
+
+    /**
+     * 接收方离线，系统回ACK给发送方
+     *
+     * @param messageContent 消息内容
+     * @return 发送消息响应
+     */
+    public void receiveAck(MessageContent messageContent) {
+        MessageReceiveServerAckPack pack = new MessageReceiveServerAckPack();
+        pack.setFromId(messageContent.getToId());
+        pack.setToId(messageContent.getFromId());
+        pack.setMessageKey(messageContent.getMessageKey());
+        pack.setMessageSequence(messageContent.getMessageSequence());
+        pack.setServerSend(true);
+        messageProducer.sendToUser(messageContent.getFromId(), MessageCommand.MSG_RECEIVE_ACK, pack,
+                new ClientInfo(messageContent.getAppId(), messageContent.getClientType(), messageContent.getImei()));
+    }
+
+
     /**
      * 私有方法，将消息发动给接收方的在线端口
      *
      * @param messageContent 消息内容
      */
-    private void sendToReceiver(MessageContent messageContent) {
+    private List<ClientInfo> sendToReceiver(MessageContent messageContent) {
         // 将消息发动给接收方的在线端口
-        messageProducer.sendToUser(messageContent.getToId(), MessageCommand.MSG_P2P, messageContent, messageContent.getAppId());
+        return messageProducer.sendToUser(messageContent.getToId(), MessageCommand.MSG_P2P, messageContent, messageContent.getAppId());
     }
 
     /**

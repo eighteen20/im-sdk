@@ -153,4 +153,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
         }
 
     }
+
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        SessionSocketHolder.offlineUserSession((NioSocketChannel) ctx.channel());
+        ctx.close();
+    }
 }

@@ -105,7 +105,7 @@ public class SessionSocketHolder {
 
         RedissonClient redissonClient = RedisManager.getRedissonClient();
         RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisConstants.USER_SESSION_CONSTANTS + userId);
-        String session = map.get(clientType).toString();
+        String session = map.get(clientType + ":" + imei).toString();
 
         if (StringUtils.isNotBlank(session)) {
             UserSession userSession = JSONObject.parseObject(session, UserSession.class);
