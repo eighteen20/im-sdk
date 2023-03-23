@@ -13,6 +13,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Class Name: P2PMessageService
@@ -34,6 +39,24 @@ public class P2pMessageService {
     @Resource
     private MessageStoreService messageStoreService;
 
+    /**
+     * 线程池, 加快消息处理速度
+     */
+    private final ThreadPoolExecutor threadPoolExecutor;
+    /*
+     * 线程池初始化
+     */
+    {
+        AtomicInteger num = new AtomicInteger(0);
+        threadPoolExecutor = new ThreadPoolExecutor(8, 8, 60, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(1000), r -> {
+                    Thread thread = new Thread(r);
+                    thread.setDaemon(true);
+                    thread.setName("p2p-message-service-" + num.getAndIncrement());
+                    return thread;
+                });
+    }
+
     public void process(MessageContent messageContent) {
         String fromId = messageContent.getFromId();
         String toId = messageContent.getToId();
@@ -42,14 +65,20 @@ public class P2pMessageService {
         // 前置校验
         ResponseVO responseVO = this.checkImServicePermission(fromId, toId, appId);
         if (responseVO.isOk()) {
-            // 消息持久化
-            this.messageStoreService.storeP2pMessage(messageContent);
-            // 回ACK给发起方
-            this.sendAckToFromer(messageContent, responseVO);
-            // 发给发送方同步在线的其他设备
-            this.sendToFromerOtherDevice(messageContent, messageContent);
-            // 将消息发动给接收方的在线端口
-            this.sendToReceiver(messageContent);
+            threadPoolExecutor.execute(() -> {
+                try {
+                    // 消息持久化
+                    this.messageStoreService.storeP2pMessage(messageContent);
+                    // 回ACK给发起方
+                    this.sendAckToFromer(messageContent, responseVO);
+                    // 发给发送方同步在线的其他设备
+                    this.sendToFromerOtherDevice(messageContent, messageContent);
+                    // 将消息发动给接收方的在线端口
+                    this.sendToReceiver(messageContent);
+                } catch (Exception e) {
+                    log.error("P2P消息处理异常", e);
+                }
+            });
         } else {
             // 校验失败，返回错误信息
             // 回ACK给发起方
