@@ -5,8 +5,11 @@ import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.MessageContent;
+import cn.ctrlcv.im.serve.message.model.request.P2pSendMessageReq;
+import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -110,4 +113,25 @@ public class P2pMessageService {
         return this.checkSendMessageService.checkIsFriend(fromId, toId, appId);
     }
 
+    /**
+     * 发送消息
+     *
+     * @param req 消息请求
+     * @return 消息响应
+     */
+    public SendMessageResp send(P2pSendMessageReq req) {
+        SendMessageResp sendMessageResp = new SendMessageResp();
+        MessageContent message = new MessageContent();
+        BeanUtils.copyProperties(req, message);
+        //插入数据
+        messageStoreService.storeP2pMessage(message);
+        sendMessageResp.setMessageKey(message.getMessageKey());
+        sendMessageResp.setMessageTime(System.currentTimeMillis());
+
+        //2.发消息给同步在线端
+        sendToFromerOtherDevice(message, message);
+        //3.发消息给对方在线端
+        sendToReceiver(message);
+        return sendMessageResp;
+    }
 }

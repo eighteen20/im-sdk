@@ -7,8 +7,11 @@ import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
+import cn.ctrlcv.im.serve.message.model.request.GroupSendMessageReq;
+import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -110,4 +113,26 @@ public class GroupMessageService {
         return this.checkSendMessageService.checkGroupMessage(fromId, groupId, appId);
     }
 
+    /**
+     * 发送群消息
+     *
+     * @param req {@link GroupSendMessageReq}
+     * @return {@link SendMessageResp}
+     */
+    public SendMessageResp send(GroupSendMessageReq req) {
+        SendMessageResp sendMessageResp = new SendMessageResp();
+        GroupChatMessageContent message = new GroupChatMessageContent();
+        BeanUtils.copyProperties(req, message);
+
+        messageStoreService.storeGroupMessage(message);
+
+        sendMessageResp.setMessageKey(message.getMessageKey());
+        sendMessageResp.setMessageTime(System.currentTimeMillis());
+        //2.发消息给同步在线端
+        sendToFromerOtherDevice(message, message);
+        //3.发消息给对方在线端
+        sendToReceiver(message);
+
+        return sendMessageResp;
+    }
 }
