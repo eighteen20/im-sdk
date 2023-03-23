@@ -114,6 +114,17 @@ public class Constants {
          * 好友服务投递给IM服务的消息
          */
         public static final String FRIENDSHIP_2_IM = "friendShip2Pipeline";
+
+
+        /**
+         * 持久化私聊消息
+         */
+        public static final String STORE_P2P_MESSAGE = "storeP2PMessage";
+
+        /**
+         * 持久化群聊消息
+         */
+        public static final String STORE_GROUP_MESSAGE = "storeGroupMessage";
     }
 
 
