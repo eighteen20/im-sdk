@@ -1,15 +1,13 @@
 package cn.ctrlcv.im.serve.message.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.message.CheckSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.request.GroupSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.request.P2pSendMessageReq;
 import cn.ctrlcv.im.serve.message.service.GroupMessageService;
 import cn.ctrlcv.im.serve.message.service.P2pMessageService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Class Name: MessageController
@@ -55,6 +53,19 @@ public class MessageController {
         req.setOperator(identifier);
         return ResponseVO.successResponse(groupMessageService.send(req));
     }
+
+
+
+    /**
+     * 检查消息发送权限
+     * @param req 请求参数
+     * @return 响应参数
+     */
+    @PostMapping("/p2p/checkSend")
+    public ResponseVO checkSend(@RequestBody @Validated CheckSendMessageReq req) {
+        return ResponseVO.successResponse(p2pMessageService.checkImServicePermission(req.getFromId(), req.getToId(), req.getAppId()));
+    }
+
 
 
 }

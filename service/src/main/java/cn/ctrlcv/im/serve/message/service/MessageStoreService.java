@@ -3,7 +3,7 @@ package cn.ctrlcv.im.serve.message.service;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.common.model.message.MessageContent;
-import cn.ctrlcv.im.serve.message.dao.ImGroupMessageHistory;
+import cn.ctrlcv.im.serve.message.dao.ImGroupMessageHistoryEntity;
 import cn.ctrlcv.im.serve.message.dao.ImMessageBodyEntity;
 import cn.ctrlcv.im.serve.message.dao.ImMessageHistoryEntity;
 import cn.ctrlcv.im.serve.message.dao.mapper.ImGroupMessageHistoryMapper;
@@ -74,7 +74,7 @@ public class MessageStoreService {
         // 2.插入ImMessageBodyEntity
         this.imMessageBodyMapper.insert(imMessageBodyEntity);
         // 3.GroupChatMessageContent转化为单个ImGroupMessageHistoryEntity
-        ImGroupMessageHistory groupMessageHistory =
+        ImGroupMessageHistoryEntity groupMessageHistory =
                 this.convertToImGroupMessageHistoryEntityList(messageContent, imMessageBodyEntity.getMessageKey());
         // 4.插入ImGroupMessageHistoryEntity
         this.groupMessageHistoryMapper.insert(groupMessageHistory);
@@ -89,8 +89,8 @@ public class MessageStoreService {
      * @param messageKey     消息主键
      * @return ImGroupMessageHistoryEntity
      */
-    private ImGroupMessageHistory convertToImGroupMessageHistoryEntityList(GroupChatMessageContent messageContent, Long messageKey) {
-        ImGroupMessageHistory entity = new ImGroupMessageHistory();
+    private ImGroupMessageHistoryEntity convertToImGroupMessageHistoryEntityList(GroupChatMessageContent messageContent, Long messageKey) {
+        ImGroupMessageHistoryEntity entity = new ImGroupMessageHistoryEntity();
         BeanUtils.copyProperties(messageContent, entity);
         entity.setMessageKey(messageKey);
         entity.setGroupId(messageContent.getGroupId());

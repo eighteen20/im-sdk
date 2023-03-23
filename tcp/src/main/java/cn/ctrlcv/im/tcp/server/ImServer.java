@@ -54,7 +54,7 @@ public class ImServer {
                         socketChannel.pipeline().addLast(new MessageEncoder());
 //                        socketChannel.pipeline().addLast(new IdleStateHandler(0, 0, 10));
                         socketChannel.pipeline().addLast(new HeartBeatHandler(tcpConfig.getHeartBeatTime()));
-                        socketChannel.pipeline().addLast(new NettyServerHandler(tcpConfig.getBrokerId()));
+                        socketChannel.pipeline().addLast(new NettyServerHandler(tcpConfig.getBrokerId(), tcpConfig.getLogicUrl()));
                     }
                 })
         ;

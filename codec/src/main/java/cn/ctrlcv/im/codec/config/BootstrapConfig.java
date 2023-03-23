@@ -76,6 +76,11 @@ public class BootstrapConfig {
          * TODO 以后可以配置到表里（appId + 配置）
          */
         private Integer loginModel;
+
+        /**
+         * 逻辑服务器地址
+         */
+        private String logicUrl;
     }
 
 

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+
+import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
 import lombok.Data;
 
 /**
@@ -12,23 +14,23 @@ import lombok.Data;
     */
 @Data
 @TableName(value = "im_group_message_history")
-public class ImGroupMessageHistory implements Serializable {
+public class ImGroupMessageHistoryEntity implements Serializable {
     /**
      * 应用ID
      */
-    @TableId(value = "app_id", type = IdType.INPUT)
+    @MppMultiId
     private Integer appId;
 
     /**
      * 群组ID
      */
-    @TableId(value = "group_id", type = IdType.INPUT)
+    @MppMultiId
     private String groupId;
 
     /**
      * 消息主键
      */
-    @TableId(value = "message_key", type = IdType.INPUT)
+    @MppMultiId
     private Long messageKey;
 
     /**

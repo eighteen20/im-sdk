@@ -58,32 +58,20 @@ public class P2pMessageService {
     }
 
     public void process(MessageContent messageContent) {
-        String fromId = messageContent.getFromId();
-        String toId = messageContent.getToId();
-        Integer appId = messageContent.getAppId();
-
-        // 前置校验
-        ResponseVO responseVO = this.checkImServicePermission(fromId, toId, appId);
-        if (responseVO.isOk()) {
-            threadPoolExecutor.execute(() -> {
-                try {
-                    // 消息持久化
-                    this.messageStoreService.storeP2pMessage(messageContent);
-                    // 回ACK给发起方
-                    this.sendAckToFromer(messageContent, responseVO);
-                    // 发给发送方同步在线的其他设备
-                    this.sendToFromerOtherDevice(messageContent, messageContent);
-                    // 将消息发动给接收方的在线端口
-                    this.sendToReceiver(messageContent);
-                } catch (Exception e) {
-                    log.error("P2P消息处理异常", e);
-                }
-            });
-        } else {
-            // 校验失败，返回错误信息
-            // 回ACK给发起方
-            this.sendAckToFromer(messageContent, responseVO);
-        }
+        threadPoolExecutor.execute(() -> {
+            try {
+                // 消息持久化
+                this.messageStoreService.storeP2pMessage(messageContent);
+                // 回ACK给发起方
+                this.sendAckToFromer(messageContent, ResponseVO.successResponse());
+                // 发给发送方同步在线的其他设备
+                this.sendToFromerOtherDevice(messageContent, messageContent);
+                // 将消息发动给接收方的在线端口
+                this.sendToReceiver(messageContent);
+            } catch (Exception e) {
+                log.error("P2P消息处理异常", e);
+            }
+        });
 
     }
 
@@ -124,7 +112,7 @@ public class P2pMessageService {
     }
 
     /**
-     * 私有方法：Im服务权限校验,
+     * Im服务权限校验,
      * 校验用户是否被禁言和禁用；校验发送和接收方是否是好友关系
      *
      * @param fromId 发送方
@@ -132,7 +120,7 @@ public class P2pMessageService {
      * @param appId  应用ID
      * @return responseVO {@link ResponseVO}
      */
-    private ResponseVO checkImServicePermission(String fromId, String toId, Integer appId) {
+    public ResponseVO checkImServicePermission(String fromId, String toId, Integer appId) {
         // 校验用户是否被禁言和禁用
         ResponseVO checkRes = this.checkSendMessageService.checkUserForbiddenOrSilent(fromId, appId);
         if (!checkRes.isOk()) {
