@@ -1,9 +1,12 @@
 package cn.ctrlcv.im.serve.message.service;
 
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
+import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.common.model.message.MessageContent;
+import cn.ctrlcv.im.serve.message.dao.ImGroupMessageHistory;
 import cn.ctrlcv.im.serve.message.dao.ImMessageBodyEntity;
 import cn.ctrlcv.im.serve.message.dao.ImMessageHistoryEntity;
+import cn.ctrlcv.im.serve.message.dao.mapper.ImGroupMessageHistoryMapper;
 import cn.ctrlcv.im.serve.message.dao.mapper.ImMessageBodyMapper;
 import cn.ctrlcv.im.serve.message.dao.mapper.ImMessageHistoryMapper;
 import cn.ctrlcv.im.serve.utils.SnowflakeIdWorker;
@@ -30,6 +33,9 @@ public class MessageStoreService {
     @Resource
     private ImMessageHistoryMapper imMessageHistoryMapper;
 
+    @Resource
+    private ImGroupMessageHistoryMapper groupMessageHistoryMapper;
+
 
     /**
      * 持久化私聊消息.
@@ -46,11 +52,50 @@ public class MessageStoreService {
         // 2.插入ImMessageBodyEntity
         this.imMessageBodyMapper.insert(imMessageBodyEntity);
         // 3.messageContent转化为ImMessageHistoryEntity
-        List<ImMessageHistoryEntity> imMessageHistoryEntityList = this.convertToImMessageHistoryEntityList(messageContent, imMessageBodyEntity.getMessageKey());
+        List<ImMessageHistoryEntity> imMessageHistoryEntityList =
+                this.convertToImMessageHistoryEntityList(messageContent, imMessageBodyEntity.getMessageKey());
         // 4.批量插入ImMessageHistoryEntity
         this.imMessageHistoryMapper.insertBatchSomeColumn(imMessageHistoryEntityList);
 
         messageContent.setMessageKey(imMessageBodyEntity.getMessageKey());
+    }
+
+    /**
+     * 持久化群聊消息.
+     * 1 GroupChatMessageContent转化为ImMessageBodyEntity
+     * 2.插入ImMessageBodyEntity
+     * 3.GroupChatMessageContent转化为单个ImGroupMessageHistoryEntity
+     * 4.插入ImGroupMessageHistoryEntity
+     * @param messageContent  消息内容
+     */
+    public void storeGroupMessage(GroupChatMessageContent messageContent) {
+        // 1 GroupChatMessageContent转化为ImMessageBodyEntity
+        ImMessageBodyEntity imMessageBodyEntity = this.convertToImMessageBodyEntity(messageContent);
+        // 2.插入ImMessageBodyEntity
+        this.imMessageBodyMapper.insert(imMessageBodyEntity);
+        // 3.GroupChatMessageContent转化为单个ImGroupMessageHistoryEntity
+        ImGroupMessageHistory groupMessageHistory =
+                this.convertToImGroupMessageHistoryEntityList(messageContent, imMessageBodyEntity.getMessageKey());
+        // 4.插入ImGroupMessageHistoryEntity
+        this.groupMessageHistoryMapper.insert(groupMessageHistory);
+
+        messageContent.setMessageKey(imMessageBodyEntity.getMessageKey());
+    }
+
+    /**
+     * 消息内容转化为ImGroupMessageHistoryEntity
+     *
+     * @param messageContent 消息内容
+     * @param messageKey     消息主键
+     * @return ImGroupMessageHistoryEntity
+     */
+    private ImGroupMessageHistory convertToImGroupMessageHistoryEntityList(GroupChatMessageContent messageContent, Long messageKey) {
+        ImGroupMessageHistory entity = new ImGroupMessageHistory();
+        BeanUtils.copyProperties(messageContent, entity);
+        entity.setMessageKey(messageKey);
+        entity.setGroupId(messageContent.getGroupId());
+        entity.setCreateTime(System.currentTimeMillis());
+        return entity;
     }
 
     /**

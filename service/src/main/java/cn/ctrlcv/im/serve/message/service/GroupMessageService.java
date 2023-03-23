@@ -33,6 +33,9 @@ public class GroupMessageService {
     @Resource
     private IGroupMemberService groupMemberService;
 
+    @Resource
+    private MessageStoreService messageStoreService;
+
     public void process(GroupChatMessageContent messageContent) {
         String fromId = messageContent.getFromId();
         String groupId = messageContent.getGroupId();
@@ -41,6 +44,7 @@ public class GroupMessageService {
         // 前置校验
         ResponseVO responseVO = this.checkImServicePermission(fromId, groupId, appId);
         if (responseVO.isOk()) {
+            messageStoreService.storeGroupMessage(messageContent);
             // 回ACK给发起方
             this.sendAckToFromer(messageContent, responseVO);
             // 发给发送方同步在线的其他设备

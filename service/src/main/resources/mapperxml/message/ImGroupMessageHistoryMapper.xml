@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ctrlcv.im.serve.message.dao.mapper.ImGroupMessageHistoryMapper">
+  <resultMap id="BaseResultMap" type="cn.ctrlcv.im.serve.message.dao.ImGroupMessageHistory">
+    <!--@mbg.generated-->
+    <!--@Table im_group_message_history-->
+    <id column="app_id" jdbcType="INTEGER" property="appId" />
+    <id column="group_id" jdbcType="VARCHAR" property="groupId" />
+    <id column="message_key" jdbcType="BIGINT" property="messageKey" />
+    <result column="from_id" jdbcType="VARCHAR" property="fromId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="sequence" jdbcType="BIGINT" property="sequence" />
+    <result column="message_random" jdbcType="INTEGER" property="messageRandom" />
+    <result column="message_time" jdbcType="BIGINT" property="messageTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    app_id, group_id, message_key, from_id, create_time, `sequence`, message_random, 
+    message_time
+  </sql>
+</mapper>
