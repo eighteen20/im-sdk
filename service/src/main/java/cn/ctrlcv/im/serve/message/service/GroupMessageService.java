@@ -2,6 +2,7 @@ package cn.ctrlcv.im.serve.message.service;
 
 import cn.ctrlcv.im.codec.pack.ChatMessageAck;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
@@ -9,6 +10,7 @@ import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.message.model.request.GroupSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
+import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +45,9 @@ public class GroupMessageService {
     @Resource
     private MessageStoreService messageStoreService;
 
+    @Resource
+    private RedisSeq redisSeq;
+
     private final ThreadPoolExecutor threadPoolExecutor;
 
     /*
@@ -60,6 +65,10 @@ public class GroupMessageService {
 
 
     public void process(GroupChatMessageContent messageContent) {
+
+        Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.GROUP_MESSAGE + ":" + messageContent.getGroupId());
+        messageContent.setMessageSequence(seq);
+
         threadPoolExecutor.execute(() -> {
             try {
                 messageStoreService.storeGroupMessage(messageContent);
