@@ -67,7 +67,7 @@ public class P2pMessageService {
     public void process(MessageContent messageContent) {
 
         // 用messageId从redis中取出消息
-        MessageContent cache = messageStoreService.getMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId());
+        MessageContent cache = messageStoreService.getMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId(), MessageContent.class);
         if (cache != null) {
             // 如果消息已经存在，直接分发给接收方
             threadPoolExecutor.execute(() -> {
@@ -101,7 +101,7 @@ public class P2pMessageService {
                 // 将消息发动给接收方的在线端口
                 List<ClientInfo> clientInfoList = this.sendToReceiver(messageContent);
                 // 将messageId存到redis中
-                messageStoreService.setMessageFromMessageIdCache(messageContent);
+                messageStoreService.setMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId(), messageContent);
                 if (clientInfoList == null || clientInfoList.isEmpty()) {
                     // 发送接收确认给发送方，要带上是服务端发送的标志
                     this.receiveAck(messageContent);

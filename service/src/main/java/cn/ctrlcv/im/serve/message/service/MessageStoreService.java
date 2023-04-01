@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -166,18 +167,17 @@ public class MessageStoreService {
     }
 
 
-    public void setMessageFromMessageIdCache(MessageContent messageContent) {
-        String messageId = messageContent.getMessageId();
-        String key = messageContent.getAppId() + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
+    public void setMessageFromMessageIdCache(Integer appId, String messageId, Object messageContent) {
+        String key = appId + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
         stringRedisTemplate.opsForValue().set(key, JSONObject.toJSONString(messageContent), 5, TimeUnit.MINUTES);
     }
 
 
-    public MessageContent getMessageFromMessageIdCache(Integer appId, String messageId) {
+    public <T> T getMessageFromMessageIdCache(Integer appId, String messageId, Class<T> clazz) {
         String key =appId + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
         String s = stringRedisTemplate.opsForValue().get(key);
         if (StringUtils.isNotBlank(s)) {
-            return JSONObject.parseObject(s, MessageContent.class);
+            return JSONObject.parseObject(s, clazz);
         }
         return null;
     }

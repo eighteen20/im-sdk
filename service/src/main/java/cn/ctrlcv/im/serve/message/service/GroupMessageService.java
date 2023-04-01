@@ -4,7 +4,6 @@ import cn.ctrlcv.im.codec.pack.ChatMessageAck;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
-import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
@@ -48,6 +47,7 @@ public class GroupMessageService {
     @Resource
     private RedisSeq redisSeq;
 
+
     private final ThreadPoolExecutor threadPoolExecutor;
 
     /*
@@ -66,6 +66,19 @@ public class GroupMessageService {
 
     public void process(GroupChatMessageContent messageContent) {
 
+        GroupChatMessageContent cache = messageStoreService.getMessageFromMessageIdCache(messageContent.getAppId(),
+                messageContent.getMessageId(), GroupChatMessageContent.class);
+        if (cache != null) {
+            threadPoolExecutor.execute(() -> {
+                this.sendAckToFromer(messageContent, ResponseVO.successResponse());
+                // 发给发送方同步在线的其他设备
+                this.sendToFromerOtherDevice(messageContent, messageContent);
+                // 将消息发动给接收方的在线端口
+                this.sendToReceiver(messageContent);
+            });
+            return;
+        }
+
         Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.GROUP_MESSAGE + ":" + messageContent.getGroupId());
         messageContent.setMessageSequence(seq);
 
@@ -78,6 +91,8 @@ public class GroupMessageService {
                 this.sendToFromerOtherDevice(messageContent, messageContent);
                 // 将消息发动给接收方的在线端口
                 this.sendToReceiver(messageContent);
+                // 将messageId存到redis中
+                messageStoreService.setMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId(), messageContent);
             } catch (Exception e) {
                 log.error("群聊消息处理异常", e);
             }
@@ -107,7 +122,7 @@ public class GroupMessageService {
      * @param clientInfo     客户端信息
      */
     private void sendToFromerOtherDevice(GroupChatMessageContent messageContent, ClientInfo clientInfo) {
-        messageProducer.sendToUserExceptClient(messageContent.getFromId(), MessageCommand.MSG_P2P, messageContent, clientInfo);
+        messageProducer.sendToUserExceptClient(messageContent.getFromId(), GroupEventCommand.MSG_GROUP, messageContent, clientInfo);
     }
 
 
@@ -122,7 +137,7 @@ public class GroupMessageService {
         ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId());
         responseVO.setData(chatMessageAck);
         //發消息
-        messageProducer.sendToUser(messageContent.getFromId(), GroupEventCommand.MSG_GROUP, responseVO, messageContent);
+        messageProducer.sendToUser(messageContent.getFromId(), GroupEventCommand.GROUP_MSG_ACK, responseVO, messageContent);
     }
 
     /**
