@@ -1,10 +1,14 @@
 package cn.ctrlcv.im.messagestore.service;
 
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
 import cn.ctrlcv.im.common.model.message.MessageContent;
+import cn.ctrlcv.im.messagestore.dao.ImGroupMessageHistoryEntity;
 import cn.ctrlcv.im.messagestore.dao.ImMessageHistoryEntity;
+import cn.ctrlcv.im.messagestore.dao.mapper.ImGroupMessageHistoryMapper;
 import cn.ctrlcv.im.messagestore.dao.mapper.ImMessageBodyMapper;
 import cn.ctrlcv.im.messagestore.dao.mapper.ImMessageHistoryMapper;
+import cn.ctrlcv.im.messagestore.model.DoStoreGroupMessageDTO;
 import cn.ctrlcv.im.messagestore.model.DoStoreP2pMessageDTO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,6 +33,9 @@ public class StoreMessageService {
 
     @Resource
     ImMessageBodyMapper imMessageBodyMapper;
+
+    @Resource
+    ImGroupMessageHistoryMapper imGroupMessageHistoryMapper;
 
     @Transactional(rollbackFor = ApplicationException.class)
     public void doStoreP2pMessage(DoStoreP2pMessageDTO dto) {
@@ -65,4 +72,33 @@ public class StoreMessageService {
         return list;
     }
 
+
+    /**
+     * 持久化群聊消息
+     *
+     * @param storeGroupMessageDTO 持久化群聊消息DTO
+     */
+    @Transactional(rollbackFor = ApplicationException.class)
+    public void doStoreGroupMessage(DoStoreGroupMessageDTO storeGroupMessageDTO) {
+        imMessageBodyMapper.insert(storeGroupMessageDTO.getImMessageBodyEntity());
+        ImGroupMessageHistoryEntity historyEntity = convertToImGroupMessageHistoryEntityList(storeGroupMessageDTO.getGroupChatMessageContent(),
+                storeGroupMessageDTO.getImMessageBodyEntity().getMessageKey());
+        imGroupMessageHistoryMapper.insert(historyEntity);
+    }
+
+    /**
+     * 消息内容转化为ImGroupMessageHistoryEntity
+     *
+     * @param messageContent 消息内容
+     * @param messageKey     消息主键
+     * @return ImGroupMessageHistoryEntity
+     */
+    private ImGroupMessageHistoryEntity convertToImGroupMessageHistoryEntityList(GroupChatMessageContent messageContent, Long messageKey) {
+        ImGroupMessageHistoryEntity entity = new ImGroupMessageHistoryEntity();
+        BeanUtils.copyProperties(messageContent, entity);
+        entity.setMessageKey(messageKey);
+        entity.setGroupId(messageContent.getGroupId());
+        entity.setCreateTime(System.currentTimeMillis());
+        return entity;
+    }
 }

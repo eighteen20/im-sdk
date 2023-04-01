@@ -134,7 +134,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             if (responseVO.isOk()) {
                 MqMessageProducer.sendMessage(msg, command);
             } else {
-                Integer ackCommand = 0;
+                int ackCommand = 0;
                 if (command == MessageCommand.MSG_P2P.getCommand()) {
                     ackCommand = MessageCommand.MSG_ACK.getCommand();
                 } else {
