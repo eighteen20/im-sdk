@@ -217,4 +217,28 @@ public class Constants {
          */
         public static final String SEND_MESSAGE_BEFORE = "message.send.before";
     }
+
+
+    /**
+     * 消息序号常量
+     */
+    public static class SeqConstants {
+        /**
+         * 聊天消息序号
+         */
+        public static final String MESSAGE = "messageSeq";
+
+        public static final String GROUP_MESSAGE = "groupMessageSeq";
+
+        public static final String FRIENDSHIP = "friendshipSeq";
+
+        public static final String FRIENDSHIP_REQUEST = "friendshipRequestSeq";
+
+        public static final String FRIENDSHIP_GROUP = "friendshipGroupSeq";
+
+        public static final String GROUP = "groupSeq";
+
+        public static final String CONVERSATION = "conversationSeq";
+
+    }
 }

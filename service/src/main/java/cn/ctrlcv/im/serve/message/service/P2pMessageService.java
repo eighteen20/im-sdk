@@ -3,11 +3,14 @@ package cn.ctrlcv.im.serve.message.service;
 import cn.ctrlcv.im.codec.pack.ChatMessageAck;
 import cn.ctrlcv.im.codec.pack.message.MessageReceiveServerAckPack;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.MessageContent;
 import cn.ctrlcv.im.serve.message.model.request.P2pSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
+import cn.ctrlcv.im.serve.sequence.RedisSeq;
+import cn.ctrlcv.im.serve.utils.ConversationIdGenerate;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -40,6 +43,9 @@ public class P2pMessageService {
     @Resource
     private MessageStoreService messageStoreService;
 
+    @Resource
+    private RedisSeq redisSeq;
+
     /**
      * 线程池, 加快消息处理速度
      */
@@ -61,6 +67,11 @@ public class P2pMessageService {
     public void process(MessageContent messageContent) {
         threadPoolExecutor.execute(() -> {
             try {
+                // key = appId + seq + (fromId + toId) / (groupId)
+                Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.MESSAGE + ":" +
+                                ConversationIdGenerate.generateP2PConversationId(messageContent.getFromId(), messageContent.getToId())
+                );
+                messageContent.setMessageSequence(seq);
                 // 消息持久化
                 this.messageStoreService.storeP2pMessage(messageContent);
                 // 回ACK给发起方
@@ -129,7 +140,7 @@ public class P2pMessageService {
      */
     private void sendAckToFromer(MessageContent messageContent, ResponseVO responseVO) {
         log.info("msg ack,msgId={},checkResult{}", messageContent.getMessageId(), responseVO.getCode());
-        ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId());
+        ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId(), messageContent.getMessageSequence());
         responseVO.setData(chatMessageAck);
         //發消息
         messageProducer.sendToUser(messageContent.getFromId(), MessageCommand.MSG_ACK, responseVO, messageContent);
