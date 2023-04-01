@@ -69,6 +69,12 @@ public class Constants {
          * userSign，格式：appId:userSign:
          */
         public static final String USER_SIGN = "userSign";
+
+
+        /**
+         * 缓存客户端消息防重，格式： appId + :cacheMessage: + messageId
+         */
+        public static final String CACHE_MESSAGE = "cacheMessage";
     }
 
 

@@ -10,14 +10,17 @@ import cn.ctrlcv.im.serve.message.dao.mapper.ImGroupMessageHistoryMapper;
 import cn.ctrlcv.im.serve.message.dao.mapper.ImMessageBodyMapper;
 import cn.ctrlcv.im.serve.utils.SnowflakeIdWorker;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class Name: MessageStoreService
@@ -40,6 +43,9 @@ public class MessageStoreService {
 
     @Resource
     private RabbitTemplate rabbitTemplate;
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
 
     /**
@@ -157,5 +163,22 @@ public class MessageStoreService {
         messageBody.setMessageTime(messageContent.getMessageTime());
         messageBody.setMessageBody(messageContent.getMessageBody());
         return messageBody;
+    }
+
+
+    public void setMessageFromMessageIdCache(MessageContent messageContent) {
+        String messageId = messageContent.getMessageId();
+        String key = messageContent.getAppId() + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
+        stringRedisTemplate.opsForValue().set(key, JSONObject.toJSONString(messageContent), 5, TimeUnit.MINUTES);
+    }
+
+
+    public MessageContent getMessageFromMessageIdCache(Integer appId, String messageId) {
+        String key =appId + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
+        String s = stringRedisTemplate.opsForValue().get(key);
+        if (StringUtils.isNotBlank(s)) {
+            return JSONObject.parseObject(s, MessageContent.class);
+        }
+        return null;
     }
 }

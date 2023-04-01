@@ -65,13 +65,33 @@ public class P2pMessageService {
     }
 
     public void process(MessageContent messageContent) {
+
+        // 用messageId从redis中取出消息
+        MessageContent cache = messageStoreService.getMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId());
+        if (cache != null) {
+            // 如果消息已经存在，直接分发给接收方
+            threadPoolExecutor.execute(() -> {
+                this.sendAckToFromer(messageContent, ResponseVO.successResponse());
+                // 发给发送方同步在线的其他设备
+                this.sendToFromerOtherDevice(cache, cache);
+                // 将消息发动给接收方的在线端口
+                List<ClientInfo> clientInfoList = this.sendToReceiver(cache);
+                if (clientInfoList == null || clientInfoList.isEmpty()) {
+                    // 发送接收确认给发送方，要带上是服务端发送的标志
+                    this.receiveAck(messageContent);
+                }
+            });
+            return;
+        }
+
+        // key = appId + seq + (fromId + toId) / (groupId)
+        Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.MESSAGE + ":" +
+                ConversationIdGenerate.generateP2PConversationId(messageContent.getFromId(), messageContent.getToId())
+        );
+        messageContent.setMessageSequence(seq);
+
         threadPoolExecutor.execute(() -> {
             try {
-                // key = appId + seq + (fromId + toId) / (groupId)
-                Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.MESSAGE + ":" +
-                                ConversationIdGenerate.generateP2PConversationId(messageContent.getFromId(), messageContent.getToId())
-                );
-                messageContent.setMessageSequence(seq);
                 // 消息持久化
                 this.messageStoreService.storeP2pMessage(messageContent);
                 // 回ACK给发起方
@@ -80,6 +100,8 @@ public class P2pMessageService {
                 this.sendToFromerOtherDevice(messageContent, messageContent);
                 // 将消息发动给接收方的在线端口
                 List<ClientInfo> clientInfoList = this.sendToReceiver(messageContent);
+                // 将messageId存到redis中
+                messageStoreService.setMessageFromMessageIdCache(messageContent);
                 if (clientInfoList == null || clientInfoList.isEmpty()) {
                     // 发送接收确认给发送方，要带上是服务端发送的标志
                     this.receiveAck(messageContent);
