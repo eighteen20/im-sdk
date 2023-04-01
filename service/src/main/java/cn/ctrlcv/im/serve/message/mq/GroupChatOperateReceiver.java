@@ -4,7 +4,9 @@ import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
+import cn.ctrlcv.im.common.model.message.MessageReadedContent;
 import cn.ctrlcv.im.serve.message.service.GroupMessageService;
+import cn.ctrlcv.im.serve.message.service.MessageSyncService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
@@ -38,6 +40,9 @@ public class GroupChatOperateReceiver {
     @Resource
     private GroupMessageService groupMessageService;
 
+    @Resource
+    private MessageSyncService messageSyncService;
+
     /**
      * 监听订阅的MQ消息
      *
@@ -68,7 +73,8 @@ public class GroupChatOperateReceiver {
                 GroupChatMessageContent messageContent = jsonObject.toJavaObject(GroupChatMessageContent.class);
                 groupMessageService.process(messageContent);
             } else if (command.equals(GroupEventCommand.MSG_GROUP_READED.getCommand())) {
-
+                MessageReadedContent readedContent = jsonObject.toJavaObject(MessageReadedContent.class);
+                messageSyncService.groupReadedMark(readedContent);
             }
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {

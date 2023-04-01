@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.message.mq;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.message.MessageContent;
+import cn.ctrlcv.im.common.model.message.MessageReadedContent;
 import cn.ctrlcv.im.common.model.message.MessageReceiverAckContent;
 import cn.ctrlcv.im.serve.message.service.MessageSyncService;
 import cn.ctrlcv.im.serve.message.service.P2pMessageService;
@@ -75,6 +76,10 @@ public class ChatOperateReceiver {
                 // 消息接收确认
                 MessageReceiverAckContent messageContent = jsonObject.toJavaObject(MessageReceiverAckContent.class);
                 messageSyncService.receiveAck(messageContent);
+            } else if(command.equals(MessageCommand.MSG_READED.getCommand())) {
+                // 消息已读
+                MessageReadedContent readedContent = jsonObject.toJavaObject(MessageReadedContent.class);
+                messageSyncService.readedMark(readedContent);
             }
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {

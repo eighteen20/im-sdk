@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.tcp.handler;
 
-import cn.ctrlcv.im.codec.pack.ChatMessageAck;
+import cn.ctrlcv.im.codec.pack.message.ChatMessageAck;
 import cn.ctrlcv.im.codec.pack.LoginPack;
 import cn.ctrlcv.im.codec.pack.MessagePack;
 import cn.ctrlcv.im.codec.proto.Message;
@@ -29,7 +29,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.redisson.api.RMap;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;

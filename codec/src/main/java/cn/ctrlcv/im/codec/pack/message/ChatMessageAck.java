@@ -1,4 +1,4 @@
-package cn.ctrlcv.im.codec.pack;
+package cn.ctrlcv.im.codec.pack.message;
 
 import lombok.Data;
 
