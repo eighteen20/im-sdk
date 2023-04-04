@@ -143,5 +143,11 @@ public class ImConfig {
      */
     private boolean sendMessageCheckBlack;
 
+    /**
+     * 多端同步删除会话
+     * 1-同步删除，2-不同步删除
+     */
+    private Integer deleteConversationSyncMode;
+
 
 }
