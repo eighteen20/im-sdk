@@ -75,6 +75,11 @@ public class Constants {
          * 缓存客户端消息防重，格式： appId + :cacheMessage: + messageId
          */
         public static final String CACHE_MESSAGE = "cacheMessage";
+
+        /**
+         * 离线消息
+         */
+        public static final String OFFLINE_MESSAGE = "offlineMessage";
     }
 
 

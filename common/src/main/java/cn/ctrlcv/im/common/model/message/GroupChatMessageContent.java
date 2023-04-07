@@ -3,6 +3,8 @@ package cn.ctrlcv.im.common.model.message;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * Class Name: GroupChatMessageContent
  * Class Description: 群聊消息内容
@@ -16,5 +18,5 @@ public class GroupChatMessageContent extends MessageContent {
 
         private String groupId;
 
-        private String memberId;
+        private List<String> memberIds;
 }

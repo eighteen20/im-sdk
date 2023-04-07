@@ -1,9 +1,12 @@
 package cn.ctrlcv.im.serve.message.service;
 
+import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
+import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.model.message.*;
+import cn.ctrlcv.im.serve.conversation.service.ConversationService;
 import cn.ctrlcv.im.serve.message.dao.ImGroupMessageHistoryEntity;
 import cn.ctrlcv.im.serve.message.dao.ImMessageHistoryEntity;
 import cn.ctrlcv.im.serve.message.dao.mapper.ImGroupMessageHistoryMapper;
@@ -47,6 +50,12 @@ public class MessageStoreService {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private ConversationService conversationService;
+
+    @Resource
+    private ImConfig imConfig;
 
 
     /**
@@ -181,4 +190,70 @@ public class MessageStoreService {
         }
         return null;
     }
+
+
+    /**
+     * 存储单人离线消息
+     * <p>
+     *     0. 判断队列的数据是否超过设定值。
+     *     1. 找到fromId的消息队列。
+     *     2. 插入数据到redis的zeset，根据messageKey作为score
+     *     3. 判断队列的数据是否超过设定值。
+     *     4. 找到toId的消息队列。
+     *     5. 插入数据到redis的zeset，根据messageKey作为score
+     * <p>
+     *     数据存储则略：根据限制数量拉取
+     *
+     * @param offlineMessageContent {@link OfflineMessageContent}
+     */
+    public void storeOfflineMessage(OfflineMessageContent offlineMessageContent) {
+
+        String fromIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + offlineMessageContent.getFromId();
+        String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + offlineMessageContent.getToId();
+
+        Long fromIdSize = stringRedisTemplate.opsForZSet().size(fromIdKey);
+        Long toIdSize = stringRedisTemplate.opsForZSet().size(toIdKey);
+
+        if (fromIdSize >= imConfig.getOfflineMessageCount()) {
+            // 从队列中删除最早的数据
+            stringRedisTemplate.opsForZSet().removeRange(fromIdKey, 0, 0);
+        }
+        String conversationIdForm = conversationService.generateConversationId(ConversationTypeEnum.P2P.getCode(),
+                offlineMessageContent.getFromId(), offlineMessageContent.getToId());
+        offlineMessageContent.setConversationId(conversationIdForm);
+        stringRedisTemplate.opsForZSet().add(fromIdKey, JSONObject.toJSONString(offlineMessageContent), offlineMessageContent.getMessageKey());
+
+        if (toIdSize >= imConfig.getOfflineMessageCount()) {
+            // 从队列中删除最早的数据
+            stringRedisTemplate.opsForZSet().removeRange(toIdKey, 0, 0);
+        }
+        String conversationIdTo = conversationService.generateConversationId(ConversationTypeEnum.P2P.getCode(),
+                offlineMessageContent.getToId(), offlineMessageContent.getFromId());
+        offlineMessageContent.setConversationId(conversationIdTo);
+        stringRedisTemplate.opsForZSet().add(toIdKey, JSONObject.toJSONString(offlineMessageContent), offlineMessageContent.getMessageKey());
+    }
+
+
+    /**
+     * 存储群聊离线消息
+     *
+     * @param offlineMessageContent {@link OfflineMessageContent}
+     */
+    public void storeGroupOfflineMessage(OfflineMessageContent offlineMessageContent, List<String> memberIds) {
+
+        for (String memberId : memberIds) {
+            String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + memberId;
+            Long size = stringRedisTemplate.opsForZSet().size(toIdKey);
+            if (size >= imConfig.getOfflineMessageCount()) {
+                // 从队列中删除最早的数据
+                stringRedisTemplate.opsForZSet().removeRange(toIdKey, 0, 0);
+            }
+            String conversationId = conversationService.generateConversationId(ConversationTypeEnum.GROUP.getCode(),
+                    memberId, offlineMessageContent.getToId());
+            offlineMessageContent.setConversationId(conversationId);
+            stringRedisTemplate.opsForZSet().add(toIdKey, JSONObject.toJSONString(offlineMessageContent), offlineMessageContent.getMessageKey());
+        }
+
+    }
+
 }

@@ -80,6 +80,7 @@ imconfig:
   sendMessageCheckFriend: true # 发送单聊消息之前检查好友关系
   sendMessageCheckBlack: true # 发送单聊消息之前检查黑名单关系
   deleteConversationSyncMode: 1
+  offlineMessageCount: 1000
 
 
 httpclient:

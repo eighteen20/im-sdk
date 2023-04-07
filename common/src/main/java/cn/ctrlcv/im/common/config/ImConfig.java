@@ -149,5 +149,10 @@ public class ImConfig {
      */
     private Integer deleteConversationSyncMode;
 
+    /**
+     * 离线消息最大数量
+     */
+    private Integer offlineMessageCount;
+
 
 }

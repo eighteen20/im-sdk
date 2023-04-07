@@ -3,9 +3,11 @@ package cn.ctrlcv.im.serve.message.service;
 import cn.ctrlcv.im.codec.pack.message.ChatMessageAck;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
+import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.GroupChatMessageContent;
+import cn.ctrlcv.im.common.model.message.OfflineMessageContent;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.message.model.request.GroupSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
@@ -82,9 +84,17 @@ public class GroupMessageService {
         Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.GROUP_MESSAGE + ":" + messageContent.getGroupId());
         messageContent.setMessageSequence(seq);
 
+        messageContent.setMemberIds(groupMemberService.getGroupMemberId(messageContent.getGroupId(), messageContent.getAppId()));
+
         threadPoolExecutor.execute(() -> {
             try {
                 messageStoreService.storeGroupMessage(messageContent);
+                // 插入群聊离线消息
+                OfflineMessageContent offlineMessageContent = new OfflineMessageContent();
+                BeanUtils.copyProperties(messageContent, offlineMessageContent);
+                offlineMessageContent.setConversationType(ConversationTypeEnum.GROUP.getCode());
+                offlineMessageContent.setToId(messageContent.getGroupId());
+                messageStoreService.storeGroupOfflineMessage(offlineMessageContent, messageContent.getMemberIds());
                 // 回ACK给发起方
                 this.sendAckToFromer(messageContent, ResponseVO.successResponse());
                 // 发给发送方同步在线的其他设备
@@ -107,12 +117,11 @@ public class GroupMessageService {
      * @param messageContent 消息内容
      */
     private void sendToReceiver(GroupChatMessageContent messageContent) {
-        groupMemberService.getGroupMemberId(messageContent.getGroupId(), messageContent.getAppId())
-                .forEach(memberId -> {
-                    if (!memberId.equals(messageContent.getFromId())) {
-                        messageProducer.sendToUser(memberId, GroupEventCommand.MSG_GROUP, messageContent, messageContent.getAppId());
-                    }
-                });
+        messageContent.getMemberIds().forEach(memberId -> {
+            if (!memberId.equals(messageContent.getFromId())) {
+                messageProducer.sendToUser(memberId, GroupEventCommand.MSG_GROUP, messageContent, messageContent.getAppId());
+            }
+        });
     }
 
     /**

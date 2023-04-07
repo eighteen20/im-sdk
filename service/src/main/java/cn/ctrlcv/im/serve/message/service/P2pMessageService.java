@@ -4,9 +4,11 @@ import cn.ctrlcv.im.codec.pack.message.ChatMessageAck;
 import cn.ctrlcv.im.codec.pack.message.MessageReceiveServerAckPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
+import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.message.MessageContent;
+import cn.ctrlcv.im.common.model.message.OfflineMessageContent;
 import cn.ctrlcv.im.serve.message.model.request.P2pSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
@@ -94,6 +96,12 @@ public class P2pMessageService {
             try {
                 // 消息持久化
                 this.messageStoreService.storeP2pMessage(messageContent);
+                // 插入离线消息
+                OfflineMessageContent offlineMessageContent = new OfflineMessageContent();
+                BeanUtils.copyProperties(messageContent, offlineMessageContent);
+                offlineMessageContent.setConversationType(ConversationTypeEnum.P2P.getCode());
+                this.messageStoreService.storeOfflineMessage(offlineMessageContent);
+
                 // 回ACK给发起方
                 this.sendAckToFromer(messageContent, ResponseVO.successResponse());
                 // 发给发送方同步在线的其他设备
