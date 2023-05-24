@@ -13,7 +13,7 @@ public interface ImConversationSetMapper extends BaseMapper<ImConversationSetEnt
      * 会话已读标记
      * @param conversationSetEntity 会话实体
      */
-    @Update(" update im_conversation_set set read_sequence = #{readSequence} " +
+    @Update(" update im_conversation_set set read_sequence = #{readSequence}, sequence = #{sequence} " +
             " where conversation_id = #{conversationId} and app_id = #{appId} AND read_sequence < #{readSequence}")
     void readMark(ImConversationSetEntity conversationSetEntity);
 }

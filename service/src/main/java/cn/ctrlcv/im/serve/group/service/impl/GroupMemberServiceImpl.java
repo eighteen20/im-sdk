@@ -53,7 +53,7 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class GroupMemberImpl implements IGroupMemberService {
+public class GroupMemberServiceImpl implements IGroupMemberService {
 
     @Resource
     private ImGroupMemberMapper groupMemberMapper;

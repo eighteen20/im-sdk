@@ -16,6 +16,7 @@ import cn.ctrlcv.im.serve.conversation.model.request.DeleteConversationReq;
 import cn.ctrlcv.im.serve.conversation.model.request.UpdateConversationReq;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
+import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,9 @@ public class ConversationService {
     @Resource
     private RedisSeq redisSeq;
 
+    @Resource
+    private WriteUserSeq writeUserSeq;
+
 
     /**
      * 标记会话，把已读的seq标记到会话
@@ -64,14 +68,22 @@ public class ConversationService {
         ImConversationSetEntity conversationSetEntity = conversationSetMapper.selectOne(queryWrapper);
         if (conversationSetEntity == null) {
             conversationSetEntity = new ImConversationSetEntity();
+            long seq = redisSeq.nextSeq(messageReadedContent.getAppId() + Constants.SeqConstants.CONVERSATION);
             BeanUtils.copyProperties(messageReadedContent, conversationSetEntity);
             conversationSetEntity.setConversationId(conversationId);
             conversationSetEntity.setReadSequence(messageReadedContent.getMessageSequence());
+            conversationSetEntity.setReadSequence(seq);
             conversationSetMapper.insert(conversationSetEntity);
+            writeUserSeq.writeUserSeq(messageReadedContent.getAppId(), messageReadedContent.getFromId(),
+                    Constants.SeqConstants.CONVERSATION, seq);
         } else if (conversationSetEntity.getReadSequence() >= messageReadedContent.getMessageSequence()) {
+            long seq = redisSeq.nextSeq(messageReadedContent.getAppId() + Constants.SeqConstants.CONVERSATION);
+            conversationSetEntity.setSequence(seq);
             conversationSetEntity.setReadSequence(messageReadedContent.getMessageSequence());
             // 更新会话的Seq
             conversationSetMapper.readMark(conversationSetEntity);
+            writeUserSeq.writeUserSeq(messageReadedContent.getAppId(), messageReadedContent.getFromId(),
+                    Constants.SeqConstants.CONVERSATION, seq);
         }
 
     }
@@ -132,6 +144,7 @@ public class ConversationService {
         queryWrapper.eq(ImConversationSetEntity.COL_APP_ID,req.getAppId());
         ImConversationSetEntity imConversationSetEntity = conversationSetMapper.selectOne(queryWrapper);
         if(imConversationSetEntity != null){
+            long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.CONVERSATION);
 
             if(req.getIsMute() != null){
                 imConversationSetEntity.setIsTop(req.getIsTop());
@@ -139,13 +152,15 @@ public class ConversationService {
             if(req.getIsMute() != null){
                 imConversationSetEntity.setIsMute(req.getIsMute());
             }
+            imConversationSetEntity.setSequence(seq);
             conversationSetMapper.update(imConversationSetEntity,queryWrapper);
-
+            writeUserSeq.writeUserSeq(req.getAppId(), req.getFromId(), Constants.SeqConstants.CONVERSATION, seq);
 
             UpdateConversationPack pack = new UpdateConversationPack();
             pack.setConversationId(req.getConversationId());
             pack.setIsMute(imConversationSetEntity.getIsMute());
             pack.setIsTop(imConversationSetEntity.getIsTop());
+            pack.setSequence(seq);
             pack.setConversationType(imConversationSetEntity.getConversationType());
             messageProducer.sendToUserExceptClient(req.getFromId(), ConversationEventCommand.CONVERSATION_UPDATE, pack,
                     new ClientInfo(req.getAppId(),req.getClientType(), req.getImei()));

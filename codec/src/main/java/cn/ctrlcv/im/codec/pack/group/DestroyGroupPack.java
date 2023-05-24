@@ -14,4 +14,6 @@ public class DestroyGroupPack {
 
     private String groupId;
 
+    private Long sequence;
+
 }

@@ -252,9 +252,9 @@ public class Constants {
 
         public static final String FRIENDSHIP_GROUP = ":friendshipGroupSeq";
 
-        public static final String GROUP = "groupSeq";
+        public static final String GROUP = ":groupSeq";
 
-        public static final String CONVERSATION = "conversationSeq";
+        public static final String CONVERSATION = ":conversationSeq";
 
     }
 }

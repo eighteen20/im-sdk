@@ -14,9 +14,7 @@ import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
-import cn.ctrlcv.im.serve.group.dao.ImGroupMemberEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
-import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMemberMapper;
 import cn.ctrlcv.im.serve.group.model.callback.DestroyGroupAfterCallbackDTO;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
 import cn.ctrlcv.im.serve.group.model.request.*;
@@ -25,17 +23,17 @@ import cn.ctrlcv.im.serve.group.model.resp.GetJoinedGroupResp;
 import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;
 import cn.ctrlcv.im.serve.group.service.IGroupMemberService;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
+import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.ctrlcv.im.serve.utils.GroupMessageProducer;
+import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +51,7 @@ import java.util.*;
  * @date 2023-03-02
  */
 @Service
-public class GroupImpl implements IGroupService {
+public class GroupServiceImpl implements IGroupService {
 
     @Resource
     private ImGroupMapper groupMapper;
@@ -69,6 +67,9 @@ public class GroupImpl implements IGroupService {
 
     @Resource
     private GroupMessageProducer groupMessageProducer;
+
+    @Resource
+    private RedisSeq redisSeq;
 
 
     @Override
@@ -141,8 +142,10 @@ public class GroupImpl implements IGroupService {
         }
 
         ImGroupEntity imGroupEntity = new ImGroupEntity();
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.GROUP);
         imGroupEntity.setCreateTime(System.currentTimeMillis());
         imGroupEntity.setStatus(GroupStatusEnum.NORMAL.getCode());
+        imGroupEntity.setSequence(seq);
         BeanUtils.copyProperties(req, imGroupEntity);
         int insert = this.groupMapper.insert(imGroupEntity);
 
@@ -228,7 +231,9 @@ public class GroupImpl implements IGroupService {
         }
 
         ImGroupEntity update = new ImGroupEntity();
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.GROUP);
         BeanUtils.copyProperties(req, update);
+        update.setSequence(seq);
         update.setUpdateTime(System.currentTimeMillis());
         int row = this.groupMapper.update(update, query);
         if (row != 1) {
@@ -242,6 +247,7 @@ public class GroupImpl implements IGroupService {
 
         UpdateGroupInfoPack pack = new UpdateGroupInfoPack();
         BeanUtils.copyProperties(req, pack);
+        pack.setSequence(seq);
         groupMessageProducer.producer(req.getOperator(), GroupEventCommand.UPDATED_GROUP,
                 pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
@@ -311,7 +317,8 @@ public class GroupImpl implements IGroupService {
         }
 
         ImGroupEntity update = new ImGroupEntity();
-
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.GROUP);
+        update.setSequence(seq);
         update.setStatus(GroupStatusEnum.DESTROY.getCode());
         int update1 = this.groupMapper.update(update, objectQueryWrapper);
         if (update1 != 1) {
@@ -326,6 +333,7 @@ public class GroupImpl implements IGroupService {
 
         DestroyGroupPack pack = new DestroyGroupPack();
         pack.setGroupId(req.getGroupId());
+        pack.setSequence(seq);
         groupMessageProducer.producer(req.getOperator(),
                 GroupEventCommand.DESTROY_GROUP, pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 
@@ -358,7 +366,9 @@ public class GroupImpl implements IGroupService {
         }
 
         ImGroupEntity updateGroup = new ImGroupEntity();
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.GROUP);
         updateGroup.setOwnerId(req.getOwnerId());
+        updateGroup.setSequence(seq);
         UpdateWrapper<ImGroupEntity> updateGroupWrapper = new UpdateWrapper<>();
         updateGroupWrapper.eq(ImGroupEntity.COL_APP_ID, req.getAppId());
         updateGroupWrapper.eq(ImGroupEntity.COL_GROUP_ID, req.getGroupId());

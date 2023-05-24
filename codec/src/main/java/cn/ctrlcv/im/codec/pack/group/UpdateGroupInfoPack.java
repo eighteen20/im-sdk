@@ -47,4 +47,6 @@ public class UpdateGroupInfoPack {
      */
     private Integer maxMemberCount;
 
+    private Long sequence;
+
 }
