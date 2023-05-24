@@ -39,4 +39,14 @@ public interface IFriendshipGroupService {
      * @return {@link ImFriendshipGroupEntity}
      */
     ResponseVO<ImFriendshipGroupEntity> getGroup(String fromId, String groupName, Integer appId);
+
+    /**
+     * 更新分组序列
+     *
+     * @param fromId 用户ID
+     * @param groupName 分组名称
+     * @param appId 应用ID
+     * @return 序列
+     */
+    Long updateSeq(String fromId, String groupName, Integer appId);
 }

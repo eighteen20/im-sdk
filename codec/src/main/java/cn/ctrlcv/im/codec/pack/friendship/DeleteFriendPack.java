@@ -16,4 +16,6 @@ public class DeleteFriendPack {
 
     private String toId;
 
+    private Long sequence;
+
 }

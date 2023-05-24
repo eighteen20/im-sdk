@@ -5,25 +5,25 @@ spring:
     active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    password: abcde12345
-    url: jdbc:mysql://127.0.0.1:3306/im-?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/im?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
     username: root
   redis:
     host: 127.0.0.1
-    port: 63791
+    port: 6379
     jedis:
       pool:
         max-active: 100
         max-idle: 100
         max-wait: 1000
         min-idle: 10
-    password: abcde12345
+    password:
   rabbitmq:
     host: 127.0.0.1
-    port: 10040
+    port: 5672
 #    addresses: 127.0.0.1
     username: admin
-    password: admin123
+    password: admin
     #    virtual-host:
     listener:
       simple:

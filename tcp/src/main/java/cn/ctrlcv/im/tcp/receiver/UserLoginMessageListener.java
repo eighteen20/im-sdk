@@ -42,7 +42,7 @@ public class UserLoginMessageListener {
     }
 
     public void listenerUserLogin() {
-        RTopic topic = RedisManager.getRedissonClient().getTopic(Constants.RedisConstants.USER_LOGIN_CHANNEL);
+        RTopic topic = RedisManager.getRedissonClient().getTopic(Constants.RedisKey.USER_LOGIN_CHANNEL);
         topic.addListener(String.class, new MessageListener<String>() {
             @Override
             public void onMessage(CharSequence charSequence, String msg) {

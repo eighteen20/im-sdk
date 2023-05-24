@@ -104,7 +104,7 @@ public class SessionSocketHolder {
         SessionSocketHolder.remove(appId, clientType, userId, imei);
 
         RedissonClient redissonClient = RedisManager.getRedissonClient();
-        RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisConstants.USER_SESSION_CONSTANTS + userId);
+        RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisKey.USER_SESSION_CONSTANTS + userId);
         String session = map.get(clientType + ":" + imei).toString();
 
         if (StringUtils.isNotBlank(session)) {
@@ -131,7 +131,7 @@ public class SessionSocketHolder {
         SessionSocketHolder.remove(appId, clientType, userId, imei);
 
         RedissonClient redissonClient = RedisManager.getRedissonClient();
-        RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisConstants.USER_SESSION_CONSTANTS + userId);
+        RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisKey.USER_SESSION_CONSTANTS + userId);
         map.remove(clientType + ":" + imei);
 
         channel.close();

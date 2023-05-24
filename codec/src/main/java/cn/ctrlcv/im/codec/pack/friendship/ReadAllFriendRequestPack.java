@@ -12,6 +12,8 @@ import lombok.Data;
 @Data
 public class ReadAllFriendRequestPack {
 
-        private String fromId;
+    private String fromId;
+
+    private Long sequence;
 
 }

@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.friendship.service.impl;
 import cn.ctrlcv.im.codec.pack.friendship.AddFriendGroupPack;
 import cn.ctrlcv.im.codec.pack.friendship.DeleteFriendGroupPack;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
@@ -15,7 +16,9 @@ import cn.ctrlcv.im.serve.friendship.model.request.AddFriendShipGroupReq;
 import cn.ctrlcv.im.serve.friendship.model.request.DeleteFriendShipGroupReq;
 import cn.ctrlcv.im.serve.friendship.service.IFriendShipGroupMemberService;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipGroupService;
+import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
+import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.dao.DuplicateKeyException;
@@ -43,6 +46,12 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
     @Resource
     private MessageProducer messageProducer;
 
+    @Resource
+    private RedisSeq redisSeq;
+
+    @Resource
+    private WriteUserSeq writeUserSeq;
+
 
     @Override
     @Transactional(rollbackFor = ApplicationException.class)
@@ -66,6 +75,8 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
         insert.setDelFlag(DelFlagEnum.NORMAL.getCode());
         insert.setGroupName(req.getGroupName());
         insert.setFromId(req.getFromId());
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.FRIENDSHIP_GROUP);
+        insert.setGroupId(seq);
         try {
             int insert1 = this.groupMapper.insert(insert);
 
@@ -90,8 +101,12 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
         AddFriendGroupPack pack = new AddFriendGroupPack();
         pack.setFromId(req.getFromId());
         pack.setGroupName(req.getGroupName());
+        pack.setSequence(seq);
         messageProducer.sendToUserExceptClient(req.getFromId(), FriendshipEventCommand.FRIENDSHIP_GROUP_ADD,
                 pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
+        //写入seq
+        writeUserSeq.writeUserSeq(req.getAppId(), req.getFromId(), Constants.SeqConstants.FRIENDSHIP_GROUP, seq);
 
         return ResponseVO.successResponse();
     }
@@ -109,9 +124,11 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
             ImFriendshipGroupEntity entity = this.groupMapper.selectOne(query);
 
             if (entity != null) {
+                long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.FRIENDSHIP_GROUP);
                 ImFriendshipGroupEntity update = new ImFriendshipGroupEntity();
                 update.setGroupId(entity.getGroupId());
                 update.setDelFlag(DelFlagEnum.DELETE.getCode());
+                update.setSequence(seq);
                 this.groupMapper.updateById(update);
                 this.groupMemberService.clearGroupMember(entity.getGroupId());
 
@@ -119,8 +136,12 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
                 DeleteFriendGroupPack pack = new DeleteFriendGroupPack();
                 pack.setFromId(req.getFromId());
                 pack.setGroupName(groupName);
+                pack.setSequence(seq);
                 messageProducer.sendToUserExceptClient(req.getFromId(), FriendshipEventCommand.FRIENDSHIP_GROUP_DELETE,
                         pack, new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+
+                //写入seq
+                writeUserSeq.writeUserSeq(req.getAppId(), req.getFromId(), Constants.SeqConstants.FRIENDSHIP_GROUP, seq);
             }
         }
         return ResponseVO.successResponse();
@@ -139,5 +160,23 @@ public class FriendshipGroupImpl implements IFriendshipGroupService {
             return ResponseVO.errorResponse(FriendShipErrorCodeEnum.FRIEND_SHIP_GROUP_IS_NOT_EXIST);
         }
         return ResponseVO.successResponse(entity);
+    }
+
+    @Override
+    public Long updateSeq(String fromId, String groupName, Integer appId) {
+        QueryWrapper<ImFriendshipGroupEntity> query = new QueryWrapper<>();
+        query.eq("group_name", groupName);
+        query.eq("app_id", appId);
+        query.eq("from_id", fromId);
+
+        ImFriendshipGroupEntity entity = groupMapper.selectOne(query);
+
+        long seq = redisSeq.nextSeq(appId + Constants.SeqConstants.FRIENDSHIP_GROUP);
+
+        ImFriendshipGroupEntity group = new ImFriendshipGroupEntity();
+        group.setGroupId(entity.getGroupId());
+        group.setSequence(seq);
+        groupMapper.updateById(group);
+        return seq;
     }
 }

@@ -35,4 +35,6 @@ public class AddFriendPack {
      */
     private String addWording;
 
+    private Long sequence;
+
 }

@@ -15,4 +15,6 @@ public class AddFriendGroupPack {
     public String fromId;
 
     private String groupName;
+
+    private Long sequence;
 }

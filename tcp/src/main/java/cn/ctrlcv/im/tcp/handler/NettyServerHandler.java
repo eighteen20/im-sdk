@@ -92,7 +92,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             // 存入Redis
             RedissonClient redissonClient = RedisManager.getRedissonClient();
             RMap<String, String> map = redissonClient.getMap(msg.getMessageHeader().getAppId()
-                    + Constants.RedisConstants.USER_SESSION_CONSTANTS + loginPack.getUserId());
+                    + Constants.RedisKey.USER_SESSION_CONSTANTS + loginPack.getUserId());
             map.put(msg.getMessageHeader().getClientType() + ":" + msg.getMessageHeader().getImei(), JSONObject.toJSONString(userSession));
 
             // 将channel 存起来
@@ -105,7 +105,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             dto.setAppId(msg.getMessageHeader().getAppId());
             dto.setClientType(msg.getMessageHeader().getClientType());
             dto.setUserId(loginPack.getUserId());
-            RTopic topic = redissonClient.getTopic(Constants.RedisConstants.USER_LOGIN_CHANNEL);
+            RTopic topic = redissonClient.getTopic(Constants.RedisKey.USER_LOGIN_CHANNEL);
             topic.publish(JSONObject.toJSONString(dto));
 
         } else if (SystemCommand.LOGOUT.getCommand() == command) {

@@ -8,8 +8,10 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
-    * 单聊消息，消息关系存储
-    */
+ * 单聊消息，消息关系存储
+ *
+ * @author ljm19
+ */
 @Data
 @TableName(value = "im_message_history")
 public class ImMessageHistoryEntity implements Serializable {

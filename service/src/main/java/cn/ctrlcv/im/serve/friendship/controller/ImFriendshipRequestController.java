@@ -33,8 +33,9 @@ public class ImFriendshipRequestController {
      * @return 无
      */
     @PostMapping("/approve")
-    public ResponseVO<?> approveFriendshipRequest(@RequestBody @Validated ApproveFriendRequestReq req, Integer appId) {
+    public ResponseVO<?> approveFriendshipRequest(@RequestBody @Validated ApproveFriendRequestReq req, Integer appId, String identifier) {
         req.setAppId(appId);
+        req.setOperator(identifier);
         return this.friendshipRequestService.approveFriendshipRequest(req);
     }
 

@@ -33,7 +33,7 @@ public class UserSessionUtils {
      * @return {@link List}<{@link UserSession}>
      */
     public List<UserSession> getUserSession(Integer appId, String userId) {
-        String userSessionKey = appId + Constants.RedisConstants.USER_SESSION_CONSTANTS + userId;
+        String userSessionKey = appId + Constants.RedisKey.USER_SESSION_CONSTANTS + userId;
         Map<Object, Object> entries = this.stringRedisTemplate.opsForHash().entries(userSessionKey);
         List<UserSession> list = new ArrayList<>();
         for (Object value : entries.values()) {
@@ -57,7 +57,7 @@ public class UserSessionUtils {
      * @return {@link UserSession}
      */
     public UserSession getUserSession(Integer appId, String userId, Integer clientType, String imei) {
-        String userSessionKey = appId + Constants.RedisConstants.USER_SESSION_CONSTANTS + userId;
+        String userSessionKey = appId + Constants.RedisKey.USER_SESSION_CONSTANTS + userId;
         String hashKey = clientType + ":" + imei;
         Object obj = stringRedisTemplate.opsForHash().get(userSessionKey, hashKey);
         return JSONObject.parseObject(obj.toString(), UserSession.class);

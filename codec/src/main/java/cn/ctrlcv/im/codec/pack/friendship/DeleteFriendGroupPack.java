@@ -12,7 +12,9 @@ import lombok.Data;
 @Data
 public class DeleteFriendGroupPack {
 
-        public String fromId;
+    public String fromId;
 
-        private String groupName;
+    private String groupName;
+
+    private Long sequence;
 }

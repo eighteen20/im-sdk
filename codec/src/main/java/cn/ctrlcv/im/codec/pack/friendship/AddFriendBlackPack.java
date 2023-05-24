@@ -15,4 +15,6 @@ public class AddFriendBlackPack {
     private String fromId;
 
     private String toId;
+
+    private Long sequence;
 }

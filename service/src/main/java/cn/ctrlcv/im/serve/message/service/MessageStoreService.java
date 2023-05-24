@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -177,13 +176,13 @@ public class MessageStoreService {
 
 
     public void setMessageFromMessageIdCache(Integer appId, String messageId, Object messageContent) {
-        String key = appId + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
+        String key = appId + ":" + Constants.RedisKey.CACHE_MESSAGE + ":" + messageId;
         stringRedisTemplate.opsForValue().set(key, JSONObject.toJSONString(messageContent), 5, TimeUnit.MINUTES);
     }
 
 
     public <T> T getMessageFromMessageIdCache(Integer appId, String messageId, Class<T> clazz) {
-        String key =appId + ":" + Constants.RedisConstants.CACHE_MESSAGE + ":" + messageId;
+        String key =appId + ":" + Constants.RedisKey.CACHE_MESSAGE + ":" + messageId;
         String s = stringRedisTemplate.opsForValue().get(key);
         if (StringUtils.isNotBlank(s)) {
             return JSONObject.parseObject(s, clazz);
@@ -208,8 +207,8 @@ public class MessageStoreService {
      */
     public void storeOfflineMessage(OfflineMessageContent offlineMessageContent) {
 
-        String fromIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + offlineMessageContent.getFromId();
-        String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + offlineMessageContent.getToId();
+        String fromIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisKey.OFFLINE_MESSAGE + ":" + offlineMessageContent.getFromId();
+        String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisKey.OFFLINE_MESSAGE + ":" + offlineMessageContent.getToId();
 
         Long fromIdSize = stringRedisTemplate.opsForZSet().size(fromIdKey);
         Long toIdSize = stringRedisTemplate.opsForZSet().size(toIdKey);
@@ -242,7 +241,7 @@ public class MessageStoreService {
     public void storeGroupOfflineMessage(OfflineMessageContent offlineMessageContent, List<String> memberIds) {
 
         for (String memberId : memberIds) {
-            String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisConstants.OFFLINE_MESSAGE + ":" + memberId;
+            String toIdKey = offlineMessageContent.getAppId() + ":" + Constants.RedisKey.OFFLINE_MESSAGE + ":" + memberId;
             Long size = stringRedisTemplate.opsForZSet().size(toIdKey);
             if (size >= imConfig.getOfflineMessageCount()) {
                 // 从队列中删除最早的数据

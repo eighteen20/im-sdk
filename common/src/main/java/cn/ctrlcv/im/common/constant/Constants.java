@@ -52,7 +52,7 @@ public class Constants {
     /**
      * Redis key 常量
      */
-    public static class RedisConstants {
+    public static class RedisKey {
         /**
          * 用户Session。
          * 格式：APPID + USER_SESSION_CONSTANTS + userId
@@ -80,6 +80,11 @@ public class Constants {
          * 离线消息
          */
         public static final String OFFLINE_MESSAGE = "offlineMessage";
+
+        /**
+         * seq 前缀
+         */
+        public static final String SEQ_PREFIX = ":seq:";
     }
 
 
@@ -241,11 +246,11 @@ public class Constants {
 
         public static final String GROUP_MESSAGE = "groupMessageSeq";
 
-        public static final String FRIENDSHIP = "friendshipSeq";
+        public static final String FRIENDSHIP = ":friendshipSeq";
 
-        public static final String FRIENDSHIP_REQUEST = "friendshipRequestSeq";
+        public static final String FRIENDSHIP_REQUEST = ":friendshipRequestSeq";
 
-        public static final String FRIENDSHIP_GROUP = "friendshipGroupSeq";
+        public static final String FRIENDSHIP_GROUP = ":friendshipGroupSeq";
 
         public static final String GROUP = "groupSeq";
 

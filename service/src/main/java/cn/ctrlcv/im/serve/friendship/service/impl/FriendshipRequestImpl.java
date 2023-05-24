@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.friendship.service.impl;
 import cn.ctrlcv.im.codec.pack.friendship.ApproveFriendRequestPack;
 import cn.ctrlcv.im.codec.pack.friendship.ReadAllFriendRequestPack;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ApproveFriendRequestStatusEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
@@ -14,7 +15,9 @@ import cn.ctrlcv.im.serve.friendship.model.request.FriendDTO;
 import cn.ctrlcv.im.serve.friendship.model.request.ReadFriendShipRequestReq;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipRequestService;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
+import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
+import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -43,6 +46,12 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
     @Resource
     private MessageProducer messageProducer;
 
+    @Resource
+    private RedisSeq redisSeq;
+
+    @Resource
+    private WriteUserSeq writeUserSeq;
+
 
     @Override
     public ResponseVO<?> addFriendshipRequest(String fromId, FriendDTO dto, Integer appId) {
@@ -52,12 +61,17 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
         queryWrapper.eq(ImFriendshipRequestEntity.COL_TO_ID, dto.getToId());
 
         ImFriendshipRequestEntity friendshipRequest = this.friendshipRequestMapper.selectOne(queryWrapper);
+
+        long seq = redisSeq.nextSeq(appId + Constants.SeqConstants.FRIENDSHIP_REQUEST);
+
         if (ObjectUtil.isNull(friendshipRequest)) {
+            friendshipRequest = new ImFriendshipRequestEntity();
             friendshipRequest.setAddSource(dto.getAddSource());
             friendshipRequest.setAddWording(dto.getAddWording());
             friendshipRequest.setAppId(appId);
             friendshipRequest.setFromId(fromId);
             friendshipRequest.setToId(dto.getToId());
+            friendshipRequest.setSequence(seq);
             friendshipRequest.setReadStatus(0);
             friendshipRequest.setApproveStatus(0);
             friendshipRequest.setRemark(dto.getRemark());
@@ -76,9 +90,12 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
             }
             friendshipRequest.setReadStatus(0);
             friendshipRequest.setApproveStatus(0);
+            friendshipRequest.setSequence(seq);
             friendshipRequest.setUpdateTime(DateUtil.current());
             this.friendshipRequestMapper.updateById(friendshipRequest);
         }
+
+        writeUserSeq.writeUserSeq(appId, dto.getToId(), Constants.SeqConstants.FRIENDSHIP_REQUEST, seq);
 
         // 发送好友请求通知给对方
         messageProducer.sendToUser(dto.getToId(), null, "", FriendshipEventCommand.FRIENDSHIP_REQUEST,
@@ -100,11 +117,16 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
             throw new ApplicationException(FriendShipErrorCodeEnum.NOT_APPROVAL_OTHER_MAN_REQUEST);
         }
 
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.FRIENDSHIP_REQUEST);
+
         ImFriendshipRequestEntity update = new ImFriendshipRequestEntity();
         update.setApproveStatus(req.getStatus());
         update.setUpdateTime(System.currentTimeMillis());
+        update.setSequence(seq);
         update.setId(req.getId());
         this.friendshipRequestMapper.updateById(update);
+
+        writeUserSeq.writeUserSeq(req.getAppId(), req.getOperator(), Constants.SeqConstants.FRIENDSHIP_REQUEST, seq);
 
         if (ApproveFriendRequestStatusEnum.AGREE.getCode() == req.getStatus()) {
             //同意 ===> 去执行添加好友逻辑
@@ -124,6 +146,7 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
         ApproveFriendRequestPack pack = new ApproveFriendRequestPack();
         pack.setId(req.getId());
         pack.setStatus(req.getStatus());
+        pack.setSequence(seq);
         messageProducer.sendToUser(imFriendShipRequestEntity.getFromId(), req.getClientType(), req.getImei(),
                 FriendshipEventCommand.FRIENDSHIP_REQUEST_APPROVAL, pack, req.getAppId());
 
@@ -147,14 +170,19 @@ public class FriendshipRequestImpl implements IFriendshipRequestService {
         query.eq("app_id", req.getAppId());
         query.eq("to_id", req.getFromId());
 
+        long seq = redisSeq.nextSeq(req.getAppId() + Constants.SeqConstants.FRIENDSHIP_REQUEST);
 
         ImFriendshipRequestEntity update = new ImFriendshipRequestEntity();
         update.setReadStatus(1);
+        update.setSequence(seq);
         this.friendshipRequestMapper.update(update, query);
+
+        writeUserSeq.writeUserSeq(req.getAppId(), req.getOperator(), Constants.SeqConstants.FRIENDSHIP_REQUEST, seq);
 
         // 通知
         ReadAllFriendRequestPack pack = new ReadAllFriendRequestPack();
         pack.setFromId(req.getFromId());
+        pack.setSequence(seq);
         messageProducer.sendToUser(req.getFromId(), req.getClientType(), req.getImei(), FriendshipEventCommand.FRIENDSHIP_REQUEST_READ,
                 pack, req.getAppId());
 

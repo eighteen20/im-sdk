@@ -2,14 +2,15 @@ package cn.ctrlcv.im.serve.message.dao;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+
 import java.io.Serializable;
 
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
 import lombok.Data;
 
 /**
-    * 单聊消息，消息关系存储
-    */
+ * 单聊消息，消息关系存储
+ */
 @Data
 @TableName(value = "im_message_history")
 public class ImMessageHistoryEntity implements Serializable {

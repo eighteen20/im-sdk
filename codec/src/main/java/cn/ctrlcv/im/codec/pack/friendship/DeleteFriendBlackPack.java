@@ -16,4 +16,6 @@ public class DeleteFriendBlackPack {
 
     private String toId;
 
+    private Long sequence;
+
 }
