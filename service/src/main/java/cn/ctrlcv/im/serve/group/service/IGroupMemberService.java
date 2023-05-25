@@ -147,4 +147,13 @@ public interface IGroupMemberService {
      * @return 群成员ID集合
      */
     List<GroupMemberDTO> getGroupManager(String groupId, Integer appId);
+
+    /**
+     * 获取用户加入的群组ID
+     *
+     * @param appId 应用ID
+     * @param operator 用户ID
+     * @return 群组ID集合
+     */
+    ResponseVO<List<String>> syncMemberJoinedGroup(Integer appId, String operator);
 }

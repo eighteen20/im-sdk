@@ -9,19 +9,24 @@ import cn.ctrlcv.im.common.enums.ConversationErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.command.ConversationEventCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.common.model.message.MessageReadedContent;
 import cn.ctrlcv.im.serve.conversation.dao.ImConversationSetEntity;
 import cn.ctrlcv.im.serve.conversation.dao.mapper.ImConversationSetMapper;
 import cn.ctrlcv.im.serve.conversation.model.request.DeleteConversationReq;
 import cn.ctrlcv.im.serve.conversation.model.request.UpdateConversationReq;
+import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Class Name: ConversationService
@@ -71,6 +76,7 @@ public class ConversationService {
             long seq = redisSeq.nextSeq(messageReadedContent.getAppId() + Constants.SeqConstants.CONVERSATION);
             BeanUtils.copyProperties(messageReadedContent, conversationSetEntity);
             conversationSetEntity.setConversationId(conversationId);
+            conversationSetEntity.setToId(toId);
             conversationSetEntity.setReadSequence(messageReadedContent.getMessageSequence());
             conversationSetEntity.setReadSequence(seq);
             conversationSetMapper.insert(conversationSetEntity);
@@ -166,5 +172,39 @@ public class ConversationService {
                     new ClientInfo(req.getAppId(),req.getClientType(), req.getImei()));
         }
         return ResponseVO.successResponse();
+    }
+
+    /**
+     * 同步会话列表
+     *
+     * @param req 同步会话列表请求
+     * @return 同步会话列表响应
+     */
+    public ResponseVO<SyncResp<ImConversationSetEntity>> syncConversationList(SyncReq req) {
+        if (req.getMaxLimit() > 100) {
+            req.setMaxLimit(100);
+        }
+        SyncResp<ImConversationSetEntity> syncResp = new SyncResp<>();
+        QueryWrapper<ImConversationSetEntity> query = new QueryWrapper<>();
+        query.lambda()
+                .eq(ImConversationSetEntity::getAppId, req.getAppId())
+                .eq(ImConversationSetEntity::getFromId, req.getOperator())
+                .gt(ImConversationSetEntity::getSequence, req.getLastSequence())
+                .last("limit " + req.getMaxLimit())
+                .orderByAsc(ImConversationSetEntity::getSequence);
+
+        List<ImConversationSetEntity> entityList = conversationSetMapper.selectList(query);
+
+        if (CollectionUtils.isEmpty(entityList)) {
+            ImConversationSetEntity lastEntity = entityList.get(entityList.size() - 1);
+            Long maxConversationSetSequence = conversationSetMapper.getMaxFriendSequence(req.getAppId(), req.getOperator());
+            syncResp.setMaxSequence(maxConversationSetSequence);
+            syncResp.setCompleted(lastEntity.getSequence() >= maxConversationSetSequence);
+            syncResp.setDataList(entityList);
+            return ResponseVO.successResponse(syncResp);
+        }
+
+        syncResp.setCompleted(true);
+        return ResponseVO.successResponse(syncResp);
     }
 }

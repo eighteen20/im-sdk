@@ -13,6 +13,9 @@ import cn.ctrlcv.im.common.enums.GroupTypeEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.model.ClientInfo;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
+import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
 import cn.ctrlcv.im.serve.group.model.callback.DestroyGroupAfterCallbackDTO;
@@ -421,4 +424,40 @@ public class GroupServiceImpl implements IGroupService {
 
         return ResponseVO.successResponse();
     }
+
+    @Override
+    public ResponseVO syncJoinedGroup(SyncReq req) {
+        if (req.getMaxLimit() > 100) {
+            req.setMaxLimit(100);
+        }
+        SyncResp<ImGroupEntity> syncResp = new SyncResp<>();
+
+        ResponseVO<List<String>> joinedGroupIdsResp = groupMemberService.syncMemberJoinedGroup(req.getAppId(), req.getOperator());
+        if (joinedGroupIdsResp.isOk()) {
+            List<String> joinedGroupIds = joinedGroupIdsResp.getData();
+
+            QueryWrapper<ImGroupEntity> query = new QueryWrapper<>();
+            query.lambda()
+                    .eq(ImGroupEntity::getAppId, req.getAppId())
+                    .in(ImGroupEntity::getGroupId, joinedGroupIds)
+                    .gt(ImGroupEntity::getSequence, req.getLastSequence())
+                    .last("limit " + req.getMaxLimit())
+                    .orderByAsc(ImGroupEntity::getSequence);
+            List<ImGroupEntity> groupEntityList = groupMapper.selectList(query);
+
+            if (org.springframework.util.CollectionUtils.isEmpty(groupEntityList)) {
+                ImGroupEntity lastEntity = groupEntityList.get(groupEntityList.size() - 1);
+                Long maxSequence = groupMapper.getMaxSequence(req.getAppId(), joinedGroupIds);
+                syncResp.setMaxSequence(maxSequence);
+                syncResp.setCompleted(lastEntity.getSequence() >= maxSequence);
+                syncResp.setDataList(groupEntityList);
+                return ResponseVO.successResponse(syncResp);
+            }
+
+        }
+        syncResp.setCompleted(true);
+        return ResponseVO.successResponse(syncResp);
+    }
+
+
 }

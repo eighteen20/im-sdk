@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.serve.friendship.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
@@ -175,6 +177,19 @@ public class ImFriendshipController {
     public ResponseVO<CheckFriendShipResp> checkBlack(@RequestBody @Validated CheckFriendShipReq req, Integer appId){
         req.setAppId(appId);
         return this.friendshipService.checkBlack(req);
+    }
+
+    /**
+     * 同步好友列表(增量拉取)
+     *
+     * @param req {@link SyncReq}
+     * @param appId 应用ID
+     * @return {@link SyncResp}
+     */
+    @GetMapping("/syncFriendshipList")
+    public ResponseVO<SyncResp<ImFriendshipEntity>> syncFriendshipList(@RequestBody @Validated SyncReq req, Integer appId){
+        req.setAppId(appId);
+        return this.friendshipService.syncFriendshipList(req);
     }
 
 }

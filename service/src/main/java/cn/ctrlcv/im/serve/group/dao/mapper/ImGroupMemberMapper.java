@@ -50,4 +50,15 @@ public interface ImGroupMemberMapper extends BaseMapper<ImGroupMemberEntity> {
      */
     @Select("select member_id, `role` from im_group_member where app_id = #{param1} AND group_id = #{param2} and `role` in (1, 2)")
     List<GroupMemberDTO> getGroupManager(Integer appId, String groupId);
+
+    /**
+     * 查询用户加入的群组的ID
+     *
+     * @param appId 应用ID
+     * @param operator 用户ID
+     * @param code 状态码
+     * @return ID集合
+     */
+    @Select("select group_id from im_group_member where app_id = #{param1} AND member_id = #{param2} and role != #{param3}" )
+    List<String> syncMemberJoinedGroup(Integer appId, String operator, int code);
 }

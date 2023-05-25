@@ -1,30 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper">
-  <resultMap id="BaseResultMap" type="cn.ctrlcv.im.serve.group.dao.ImGroupEntity">
-    <!--@mbg.generated-->
-    <!--@Table im_group-->
-    <id column="group_id" jdbcType="VARCHAR" property="groupId" />
-    <id column="app_id" jdbcType="INTEGER" property="appId" />
-    <result column="owner_id" jdbcType="VARCHAR" property="ownerId" />
-    <result column="group_type" jdbcType="INTEGER" property="groupType" />
-    <result column="group_name" jdbcType="VARCHAR" property="groupName" />
-    <result column="mute" jdbcType="BOOLEAN" property="mute" />
-    <result column="status" jdbcType="BOOLEAN" property="status" />
-    <result column="apply_join_type" jdbcType="INTEGER" property="applyJoinType" />
-    <result column="introduction" jdbcType="VARCHAR" property="introduction" />
-    <result column="notification" jdbcType="VARCHAR" property="notification" />
-    <result column="photo" jdbcType="VARCHAR" property="photo" />
-    <result column="max_member_count" jdbcType="INTEGER" property="maxMemberCount" />
-    <result column="sequence" jdbcType="BIGINT" property="sequence" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
-    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="extra" jdbcType="VARCHAR" property="extra" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    group_id, app_id, owner_id, group_type, group_name, mute, `status`, apply_join_type, 
-    introduction, notification, photo, max_member_count, `sequence`, create_time, update_time, 
-    extra
-  </sql>
+    <resultMap id="BaseResultMap" type="cn.ctrlcv.im.serve.group.dao.ImGroupEntity">
+        <!--@mbg.generated-->
+        <!--@Table im_group-->
+        <id column="group_id" jdbcType="VARCHAR" property="groupId"/>
+        <id column="app_id" jdbcType="INTEGER" property="appId"/>
+        <result column="owner_id" jdbcType="VARCHAR" property="ownerId"/>
+        <result column="group_type" jdbcType="INTEGER" property="groupType"/>
+        <result column="group_name" jdbcType="VARCHAR" property="groupName"/>
+        <result column="mute" jdbcType="BOOLEAN" property="mute"/>
+        <result column="status" jdbcType="BOOLEAN" property="status"/>
+        <result column="apply_join_type" jdbcType="INTEGER" property="applyJoinType"/>
+        <result column="introduction" jdbcType="VARCHAR" property="introduction"/>
+        <result column="notification" jdbcType="VARCHAR" property="notification"/>
+        <result column="photo" jdbcType="VARCHAR" property="photo"/>
+        <result column="max_member_count" jdbcType="INTEGER" property="maxMemberCount"/>
+        <result column="sequence" jdbcType="BIGINT" property="sequence"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <result column="extra" jdbcType="VARCHAR" property="extra"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        group_id,
+        app_id,
+        owner_id,
+        group_type,
+        group_name,
+        mute,
+        `status`,
+        apply_join_type,
+        introduction,
+        notification,
+        photo,
+        max_member_count,
+        `sequence`,
+        create_time,
+        update_time,
+        extra
+    </sql>
+
+    <select id="getMaxSequence" resultType="java.lang.Long">
+        select max(sequence)
+        from im_group where app_id = #{param1}
+                        and group_id in
+        <foreach collection='param2' index='index' item='id' separator=',' close=')' open='('>
+            #{id}
+        </foreach>
+    </select>
 </mapper>

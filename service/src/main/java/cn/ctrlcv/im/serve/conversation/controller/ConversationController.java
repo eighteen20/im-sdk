@@ -1,6 +1,9 @@
 package cn.ctrlcv.im.serve.conversation.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
+import cn.ctrlcv.im.serve.conversation.dao.ImConversationSetEntity;
 import cn.ctrlcv.im.serve.conversation.model.request.DeleteConversationReq;
 import cn.ctrlcv.im.serve.conversation.model.request.UpdateConversationReq;
 import cn.ctrlcv.im.serve.conversation.service.ConversationService;
@@ -49,6 +52,19 @@ public class ConversationController {
         req.setAppId(appId);
         req.setOperator(identifier);
         return conversationService.updateConversation(req);
+    }
+
+    /**
+     * 同步会话列表(增量拉取)
+     *
+     * @param req {@link SyncReq}
+     * @param appId 应用ID
+     * @return {@link SyncResp}
+     */
+    @GetMapping("/syncConversationList")
+    public ResponseVO<SyncResp<ImConversationSetEntity>> syncConversationList(SyncReq req, Integer appId) {
+        req.setAppId(appId);
+        return conversationService.syncConversationList(req);
     }
 
 }

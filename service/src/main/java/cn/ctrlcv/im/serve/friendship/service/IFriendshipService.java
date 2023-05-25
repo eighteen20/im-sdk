@@ -2,6 +2,8 @@ package cn.ctrlcv.im.serve.friendship.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.model.RequestBase;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.*;
 import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
@@ -126,4 +128,12 @@ public interface IFriendshipService {
      * @return {@link ImFriendshipEntity}
      */
     ResponseVO<ImFriendshipEntity> getRelation(GetRelationReq fromReq);
+
+    /**
+     * 同步好友列表(增量拉取)
+     *
+     * @param req {@link SyncReq}
+     * @return {@link SyncResp}
+     */
+    ResponseVO<SyncResp<ImFriendshipEntity>> syncFriendshipList(SyncReq req);
 }

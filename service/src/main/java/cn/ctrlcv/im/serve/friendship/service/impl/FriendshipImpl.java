@@ -11,6 +11,8 @@ import cn.ctrlcv.im.common.enums.FriendShipStatusEnum;
 import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.model.RequestBase;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.dao.mapper.ImFriendshipMapper;
 import cn.ctrlcv.im.serve.friendship.model.callback.AddFriendAfterCallbackDTO;
@@ -35,6 +37,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -619,5 +622,34 @@ public class FriendshipImpl implements IFriendshipService {
             return ResponseVO.errorResponse(FriendShipErrorCodeEnum.RELATIONSHIP_IS_NOT_EXIST);
         }
         return ResponseVO.successResponse(entity);
+    }
+
+    @Override
+    public ResponseVO<SyncResp<ImFriendshipEntity>> syncFriendshipList(SyncReq req) {
+        if (req.getMaxLimit() > 100) {
+            req.setMaxLimit(100);
+        }
+        SyncResp<ImFriendshipEntity> syncResp = new SyncResp<>();
+        QueryWrapper<ImFriendshipEntity> query = new QueryWrapper<>();
+        query.lambda()
+                .eq(ImFriendshipEntity::getAppId, req.getAppId())
+                .eq(ImFriendshipEntity::getFromId, req.getOperator())
+                .gt(ImFriendshipEntity::getFriendSequence, req.getLastSequence())
+                .last("limit " + req.getMaxLimit())
+                .orderByAsc(ImFriendshipEntity::getFriendSequence);
+
+        List<ImFriendshipEntity> entityList = friendshipMapper.selectList(query);
+
+        if (CollectionUtils.isEmpty(entityList)) {
+            ImFriendshipEntity lastEntity = entityList.get(entityList.size() - 1);
+            Long maxFriendSequence = friendshipMapper.getMaxFriendSequence(req.getAppId(), req.getOperator());
+            syncResp.setMaxSequence(maxFriendSequence);
+            syncResp.setCompleted(lastEntity.getFriendSequence() >= maxFriendSequence);
+            syncResp.setDataList(entityList);
+            return ResponseVO.successResponse(syncResp);
+        }
+
+        syncResp.setCompleted(true);
+        return ResponseVO.successResponse(syncResp);
     }
 }

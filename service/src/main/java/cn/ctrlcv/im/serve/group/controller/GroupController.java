@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.serve.group.controller;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.SyncReq;
+import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.service.IGroupService;
 import org.springframework.validation.annotation.Validated;
@@ -138,6 +140,20 @@ public class GroupController {
         req.setAppId(appId);
         req.setOperator(identifier);
         return groupService.muteGroup(req);
+    }
+
+    /**
+     * 同步加入的群列表(增量拉取)
+     *
+     * @param req {@link SyncReq}
+     * @param appId 应用ID
+     * @return {@link SyncResp}
+     */
+    @GetMapping("/syncJoinedGroup")
+    public ResponseVO syncJoinedGroup(@RequestBody @Validated SyncReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return groupService.syncJoinedGroup(req);
     }
 
 

@@ -4,6 +4,7 @@ import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.friendship.model.request.CheckFriendShipReq;
 import cn.ctrlcv.im.serve.friendship.model.response.CheckFriendShipResp;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -47,4 +48,14 @@ public interface ImFriendshipMapper extends BaseMapper<ImFriendshipEntity> {
      * @return {@link List}<{@link CheckFriendShipResp}>
      */
     List<CheckFriendShipResp> getBothFriendShipBlack(CheckFriendShipReq req);
+
+    /**
+     * 查询最大的friend_sequence
+     *
+     * @param appId 应用ID
+     * @param userId 用户ID
+     * @return {@link Long}
+     */
+    @Select("select max(friend_sequence) from im_friendship where app_id = #{param1} and from_id = #{param2}")
+    Long getMaxFriendSequence(Integer appId, String userId);
 }

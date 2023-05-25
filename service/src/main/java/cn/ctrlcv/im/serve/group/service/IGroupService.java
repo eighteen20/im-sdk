@@ -1,6 +1,7 @@
 package cn.ctrlcv.im.serve.group.service;
 
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetGroupResp;
@@ -98,4 +99,12 @@ public interface IGroupService {
      * @return
      */
     ResponseVO muteGroup(MuteGroupReq req);
+
+    /**
+     * 同步群组
+     *
+     * @param req {@link SyncReq}
+     * @return
+     */
+    ResponseVO syncJoinedGroup(SyncReq req);
 }
