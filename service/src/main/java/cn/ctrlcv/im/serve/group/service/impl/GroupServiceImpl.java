@@ -12,6 +12,7 @@ import cn.ctrlcv.im.common.enums.GroupStatusEnum;
 import cn.ctrlcv.im.common.enums.GroupTypeEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.common.exception.ApplicationExceptionEnum;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.common.model.SyncResp;
@@ -460,4 +461,14 @@ public class GroupServiceImpl implements IGroupService {
     }
 
 
+    @Override
+    public Long getUserGroupMaxSequence(Integer appId, String userId) {
+
+        ResponseVO<List<String>> joinedGroupIdsResp = groupMemberService.syncMemberJoinedGroup(appId, userId);
+        if (!joinedGroupIdsResp.isOk()) {
+            throw new ApplicationException(GroupErrorCodeEnum.FAILED_TO_QUERY_GROUP_INFO);
+        }
+
+        return groupMapper.getMaxSequence(appId, joinedGroupIdsResp.getData());
+    }
 }

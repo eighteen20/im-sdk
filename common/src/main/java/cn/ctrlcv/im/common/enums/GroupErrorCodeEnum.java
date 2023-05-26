@@ -51,6 +51,8 @@ public enum GroupErrorCodeEnum implements ApplicationExceptionEnum {
     GROUP_MEMBER_IS_SPEAK(40017,"群成员被禁言"),
 
     GROUP_IS_DESTROY(40018,"群组已解散"),
+
+    FAILED_TO_QUERY_GROUP_INFO(40019,"查询群组信息失败"),
             ;
 
     private int code;

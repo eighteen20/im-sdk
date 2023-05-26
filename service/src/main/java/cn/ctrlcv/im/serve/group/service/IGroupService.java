@@ -107,4 +107,13 @@ public interface IGroupService {
      * @return
      */
     ResponseVO syncJoinedGroup(SyncReq req);
+
+    /**
+     * 获取用户群组最大的sequence
+     *
+     * @param appId 应用ID
+     * @param userId 用户ID
+     * @return 最大的sequence
+     */
+    Long getUserGroupMaxSequence(Integer appId, String userId);
 }

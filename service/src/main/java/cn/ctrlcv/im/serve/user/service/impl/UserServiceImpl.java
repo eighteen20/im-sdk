@@ -8,6 +8,7 @@ import cn.ctrlcv.im.common.enums.DelFlagEnum;
 import cn.ctrlcv.im.common.enums.UserErrorCodeEnum;
 import cn.ctrlcv.im.common.enums.command.UserEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
+import cn.ctrlcv.im.serve.group.service.IGroupService;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.dao.mapper.ImUserDataEntityMapper;
 import cn.ctrlcv.im.serve.user.model.request.*;
@@ -19,12 +20,15 @@ import cn.ctrlcv.im.serve.utils.MessageProducer;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class Name: UserServiceImpl
@@ -40,6 +44,12 @@ public class UserServiceImpl implements IUserService {
     private final ImConfig imConfig;
     private final CallbackService callbackService;
     private final MessageProducer messageProducer;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    private IGroupService groupService;
 
 
     public UserServiceImpl(ImUserDataEntityMapper userDataEntityMapper, ImConfig imConfig, CallbackService callbackService,
@@ -192,5 +202,15 @@ public class UserServiceImpl implements IUserService {
     public ResponseVO login(LoginReq req) {
         // TODO 可拓展一些具体的业务逻辑
         return ResponseVO.successResponse();
+    }
+
+
+    @Override
+    public ResponseVO<Map<Object, Object>> getSequence(GetUserSequenceReq req) {
+        Map<Object, Object> map = redisTemplate.opsForHash()
+                .entries(req.getAppId() + Constants.RedisKey.SEQ_PREFIX + req.getUserId());
+        Long groupSeq = groupService.getUserGroupMaxSequence(req.getAppId(), req.getUserId());
+        map.put(Constants.SeqConstants.GROUP, groupSeq);
+        return ResponseVO.successResponse(map);
     }
 }

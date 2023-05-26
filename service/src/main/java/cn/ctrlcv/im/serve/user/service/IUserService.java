@@ -6,6 +6,8 @@ import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 
+import java.util.Map;
+
 /**
  * interface Name: IUserService
  * interface Description: 用户资料业务逻辑接口
@@ -63,4 +65,12 @@ public interface IUserService {
      * @return
      */
     ResponseVO login(LoginReq req);
+
+    /**
+     * 获取用户的seq
+     *
+     * @param req {@link GetUserSequenceReq}
+     * @return
+     */
+    ResponseVO<Map<Object, Object>> getSequence(GetUserSequenceReq req);
 }

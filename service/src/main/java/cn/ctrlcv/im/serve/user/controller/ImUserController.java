@@ -5,17 +5,16 @@ import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.route.RouteHandler;
 import cn.ctrlcv.im.common.route.RouteInfo;
 import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
+import cn.ctrlcv.im.serve.user.model.request.GetUserSequenceReq;
 import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
 import cn.ctrlcv.im.serve.user.model.request.LoginReq;
 import cn.ctrlcv.im.serve.user.service.IUserService;
 import cn.ctrlcv.im.serve.utils.ZkUtil;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class Name: ImUserController
@@ -79,6 +78,20 @@ public class ImUserController {
         }
 
         return ResponseVO.errorResponse();
+    }
+
+
+    /**
+     * 获取用户的sequence
+     *
+     * @param req {@link GetUserSequenceReq}
+     * @param appId 应用ID
+     * @return
+     */
+    @GetMapping("/getSequence")
+    public ResponseVO<Map<Object, Object>> getSequence(@RequestBody @Validated GetUserSequenceReq req, Integer appId) {
+        req.setAppId(appId);
+        return this.userService.getSequence(req);
     }
 
 
