@@ -15,6 +15,7 @@ import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
+import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import com.alibaba.fastjson.JSONObject;
@@ -47,7 +48,6 @@ public class UserServiceImpl implements IUserService {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
-
     @Resource
     private IGroupService groupService;
 

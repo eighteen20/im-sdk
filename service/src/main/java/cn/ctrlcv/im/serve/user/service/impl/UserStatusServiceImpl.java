@@ -1,12 +1,14 @@
 package cn.ctrlcv.im.serve.user.service.impl;
 
 import cn.ctrlcv.im.codec.pack.user.UserStatusChangeNotifyPack;
+import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.UserEventCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.UserSession;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
+import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
 import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.ctrlcv.im.serve.utils.UserSessionUtils;
@@ -90,4 +92,26 @@ public class UserStatusServiceImpl implements IUserStatusService {
     }
 
 
+    /**
+     * 存储结构：
+     * <p>
+     * hash结构存储
+     * <br>
+     * key: 用户ID。value: [订阅者ID:过期时间]
+     * </p>
+     */
+    @Override
+    public ResponseVO<?> subscribeUserOnlineStatus(SubscribeUserOnlineStatusReq req) {
+        long subExpireTime = 0L;
+        if (req != null && req.getSubTime() > 0) {
+            subExpireTime = System.currentTimeMillis() + req.getSubTime();
+        }
+
+        for (String beSubUserId : req.getSubUserId()) {
+            String userKey = req.getAppId() + Constants.RedisKey.SUBSCRIBE + beSubUserId;
+            stringRedisTemplate.opsForHash().put(userKey, req.getOperator(), Long.toString(subExpireTime));
+        }
+
+        return ResponseVO.successResponse();
+    }
 }

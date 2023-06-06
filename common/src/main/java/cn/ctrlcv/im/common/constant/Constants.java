@@ -89,7 +89,7 @@ public class Constants {
         /**
          * 用户订阅列表，格式 ：appId + :subscribe: + userId。Hash结构，filed为订阅自己的人
          */
-        public static final String SUBSCRIBE = ":subscribe";
+        public static final String SUBSCRIBE = ":subscribe:";
     }
 
 

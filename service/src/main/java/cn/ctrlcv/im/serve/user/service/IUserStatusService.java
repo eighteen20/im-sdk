@@ -1,6 +1,8 @@
 package cn.ctrlcv.im.serve.user.service;
 
+import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
+import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
 
 /**
  * interface Name: IUserStatusService
@@ -14,8 +16,16 @@ public interface IUserStatusService {
     /**
      * 用户上线状态变更通知
      *
-     * @param content
+     * @param content {@link UserStatusChangeNotifyContent}
      */
     void processUserOnlineStatusNotify(UserStatusChangeNotifyContent content);
 
+
+    /**
+     * 订阅用户上线状态
+     *
+     * @param req {@link SubscribeUserOnlineStatusReq}
+     * @return 无
+     */
+    ResponseVO<?> subscribeUserOnlineStatus(SubscribeUserOnlineStatusReq req);
 }

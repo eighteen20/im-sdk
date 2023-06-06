@@ -8,11 +8,14 @@ import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
 import cn.ctrlcv.im.serve.user.model.request.GetUserSequenceReq;
 import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
 import cn.ctrlcv.im.serve.user.model.request.LoginReq;
+import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
 import cn.ctrlcv.im.serve.user.service.IUserService;
+import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.ZkUtil;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +33,8 @@ public class ImUserController {
     private final IUserService userService;
     private final RouteHandler routeHandler;
     private final ZkUtil zkUtil;
+    @Resource
+    private IUserStatusService userStatusService;
 
 
     public ImUserController(IUserService userService, RouteHandler routeHandler, ZkUtil zkUtil) {
@@ -92,6 +97,22 @@ public class ImUserController {
     public ResponseVO<Map<Object, Object>> getSequence(@RequestBody @Validated GetUserSequenceReq req, Integer appId) {
         req.setAppId(appId);
         return this.userService.getSequence(req);
+    }
+
+    /**
+     * 订阅用户在线状态
+     *
+     * @param req {@link SubscribeUserOnlineStatusReq}
+     * @param appId 应用ID
+     * @param identifier 用户ID
+     *
+     * @return {@link ResponseVO}
+     */
+    @PostMapping("/subscribeUserOnlineStatus")
+    public ResponseVO<?> subscribeUserOnlineStatus(@RequestBody @Validated SubscribeUserOnlineStatusReq req, Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return this.userStatusService.subscribeUserOnlineStatus(req);
     }
 
 
