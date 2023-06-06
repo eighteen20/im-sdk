@@ -1,5 +1,6 @@
 package cn.ctrlcv.im.serve.user.service.impl;
 
+import cn.ctrlcv.im.codec.pack.user.UserCustomStatusChangeNotifyPack;
 import cn.ctrlcv.im.codec.pack.user.UserStatusChangeNotifyPack;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
@@ -9,9 +10,11 @@ import cn.ctrlcv.im.common.model.UserSession;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
 import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
+import cn.ctrlcv.im.serve.user.model.request.UserSetCustomStatusReq;
 import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.ctrlcv.im.serve.utils.UserSessionUtils;
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -54,6 +57,8 @@ public class UserStatusServiceImpl implements IUserStatusService {
 
     /**
      * 同步发送给自己的其他端
+     * <br>
+     * TODO 可以将Command改为入参，就能实现自定义在线状态了
      *
      * @param pack       通知包
      * @param userId     用户ID
@@ -66,6 +71,8 @@ public class UserStatusServiceImpl implements IUserStatusService {
 
     /**
      * 分发给好友和订阅者
+     * <br>
+     * TODO 可以将Command改为入参，就能实现自定义在线状态了
      *
      * @param pack   通知包
      * @param userId 用户ID
@@ -111,6 +118,22 @@ public class UserStatusServiceImpl implements IUserStatusService {
             String userKey = req.getAppId() + Constants.RedisKey.SUBSCRIBE + beSubUserId;
             stringRedisTemplate.opsForHash().put(userKey, req.getOperator(), Long.toString(subExpireTime));
         }
+
+        return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO<?> setCustomStatus(UserSetCustomStatusReq req) {
+        UserCustomStatusChangeNotifyPack userCustomStatusChangeNotifyPack = new UserCustomStatusChangeNotifyPack();
+        userCustomStatusChangeNotifyPack.setCustomStatus(req.getCustomStatus());
+        userCustomStatusChangeNotifyPack.setCustomText(req.getCustomText());
+        userCustomStatusChangeNotifyPack.setUserId(req.getUserId());
+        stringRedisTemplate.opsForValue().set(req.getAppId() + Constants.RedisKey.USER_CUSTOMER_STATUS + req.getUserId()
+                , JSONObject.toJSONString(userCustomStatusChangeNotifyPack));
+
+        syncSender(userCustomStatusChangeNotifyPack, req.getUserId(),
+                new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
+        dispatcher(userCustomStatusChangeNotifyPack, req.getUserId(), req.getAppId());
 
         return ResponseVO.successResponse();
     }

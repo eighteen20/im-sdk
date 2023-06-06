@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.user.service;
 import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
 import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
+import cn.ctrlcv.im.serve.user.model.request.UserSetCustomStatusReq;
 
 /**
  * interface Name: IUserStatusService
@@ -28,4 +29,12 @@ public interface IUserStatusService {
      * @return 无
      */
     ResponseVO<?> subscribeUserOnlineStatus(SubscribeUserOnlineStatusReq req);
+
+    /**
+     * 设置用户自定义状态
+     *
+     * @param req {@link UserSetCustomStatusReq}
+     * @return 无
+     */
+    ResponseVO<?> setCustomStatus(UserSetCustomStatusReq req);
 }

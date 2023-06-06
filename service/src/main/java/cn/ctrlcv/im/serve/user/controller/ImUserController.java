@@ -5,10 +5,7 @@ import cn.ctrlcv.im.common.ResponseVO;
 import cn.ctrlcv.im.common.route.RouteHandler;
 import cn.ctrlcv.im.common.route.RouteInfo;
 import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
-import cn.ctrlcv.im.serve.user.model.request.GetUserSequenceReq;
-import cn.ctrlcv.im.serve.user.model.request.ImportUserReq;
-import cn.ctrlcv.im.serve.user.model.request.LoginReq;
-import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
+import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.service.IUserService;
 import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.ZkUtil;
@@ -113,6 +110,21 @@ public class ImUserController {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.subscribeUserOnlineStatus(req);
+    }
+
+    /**
+     * 用户设置自定义状态
+     *
+     * @param req {@link UserSetCustomStatusReq}
+     * @param appId 应用ID
+     *              @param identifier 用户ID
+     * @return {@link ResponseVO}
+     */
+    @PostMapping("/setCustomStatus")
+    public ResponseVO<?> setCustomStatus(@RequestBody @Validated UserSetCustomStatusReq req, Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return this.userStatusService.setCustomStatus(req);
     }
 
 
