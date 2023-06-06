@@ -1,9 +1,13 @@
 package cn.ctrlcv.im.tcp.utils;
 
+import cn.ctrlcv.im.codec.pack.user.UserStatusChangeNotifyPack;
+import cn.ctrlcv.im.codec.proto.MessageHeader;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ImConnectStatusEnum;
+import cn.ctrlcv.im.common.enums.command.UserEventCommand;
 import cn.ctrlcv.im.common.model.UserClientDTO;
 import cn.ctrlcv.im.common.model.UserSession;
+import cn.ctrlcv.im.tcp.publish.MqMessageProducer;
 import cn.ctrlcv.im.tcp.redis.RedisManager;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -113,6 +117,18 @@ public class SessionSocketHolder {
             map.put(clientType.toString() + ":" + imei, JSONObject.toJSONString(userSession));
         }
 
+        // 通知用户下线
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setAppId(appId);
+        messageHeader.setClientType(clientType);
+        messageHeader.setImei(imei);
+
+        UserStatusChangeNotifyPack userStatusChangeNotifyPack = new UserStatusChangeNotifyPack();
+        userStatusChangeNotifyPack.setAppId(appId);
+        userStatusChangeNotifyPack.setUserId(userId);
+        userStatusChangeNotifyPack.setStatus(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
+        MqMessageProducer.sendMessage(userStatusChangeNotifyPack, messageHeader, UserEventCommand.USER_ONLINE_STATUS_CHANGE.getCommand());
+
         channel.close();
     }
 
@@ -133,6 +149,18 @@ public class SessionSocketHolder {
         RedissonClient redissonClient = RedisManager.getRedissonClient();
         RMap<Object, Object> map = redissonClient.getMap(appId + Constants.RedisKey.USER_SESSION_CONSTANTS + userId);
         map.remove(clientType + ":" + imei);
+
+        // 通知用户下线
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setAppId(appId);
+        messageHeader.setClientType(clientType);
+        messageHeader.setImei(imei);
+
+        UserStatusChangeNotifyPack userStatusChangeNotifyPack = new UserStatusChangeNotifyPack();
+        userStatusChangeNotifyPack.setAppId(appId);
+        userStatusChangeNotifyPack.setUserId(userId);
+        userStatusChangeNotifyPack.setStatus(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
+        MqMessageProducer.sendMessage(userStatusChangeNotifyPack, messageHeader, UserEventCommand.USER_ONLINE_STATUS_CHANGE.getCommand());
 
         channel.close();
     }

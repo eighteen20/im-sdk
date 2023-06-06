@@ -41,9 +41,9 @@ public interface IFriendshipService {
      * 添加好友（无需验证）
      *
      * @param requestBase {@link RequestBase}
-     * @param fromId 发起人
-     * @param dto {@link FriendDTO}
-     * @param appId 应用ID
+     * @param fromId      发起人
+     * @param dto         {@link FriendDTO}
+     * @param appId       应用ID
      * @return 无
      */
     ResponseVO<?> doAddFriend(RequestBase requestBase, String fromId, FriendDTO dto, Integer appId);
@@ -113,7 +113,7 @@ public interface IFriendshipService {
      */
     ResponseVO<?> deleteBlack(DeleteBlackReq req);
 
-     /**
+    /**
      * 检验好友黑名单关系
      *
      * @param req {@link CheckFriendShipReq}
@@ -136,4 +136,13 @@ public interface IFriendshipService {
      * @return {@link SyncResp}
      */
     ResponseVO<SyncResp<ImFriendshipEntity>> syncFriendshipList(SyncReq req);
+
+    /**
+     * 获取用户所有好友ID列表
+     *
+     * @param userId 用户ID
+     * @param appId  应用ID
+     * @return {@link List}<{@link String}>
+     */
+    List<String> getAllFriendId(String userId, Integer appId);
 }

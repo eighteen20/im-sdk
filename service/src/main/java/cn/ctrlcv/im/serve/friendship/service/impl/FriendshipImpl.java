@@ -652,4 +652,9 @@ public class FriendshipImpl implements IFriendshipService {
         syncResp.setCompleted(true);
         return ResponseVO.successResponse(syncResp);
     }
+
+    @Override
+    public List<String> getAllFriendId(String userId, Integer appId) {
+        return friendshipMapper.getAllFriendId(userId, appId);
+    }
 }

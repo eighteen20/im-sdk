@@ -14,6 +14,11 @@ public enum SystemCommand implements Command {
     LOGIN(0x2328),
 
     /**
+     * 登录ack  9001=0x2329
+     */
+    LOGIN_ACK(0x2329),
+
+    /**
      * 退出登录 9003
      */
     LOGOUT(0x232b),

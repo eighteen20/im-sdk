@@ -85,6 +85,11 @@ public class Constants {
          * seq 前缀
          */
         public static final String SEQ_PREFIX = ":seq:";
+
+        /**
+         * 用户订阅列表，格式 ：appId + :subscribe: + userId。Hash结构，filed为订阅自己的人
+         */
+        public static final String SUBSCRIBE = ":subscribe";
     }
 
 
