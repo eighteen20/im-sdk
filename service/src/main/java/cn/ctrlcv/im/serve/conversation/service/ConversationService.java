@@ -207,4 +207,16 @@ public class ConversationService {
         syncResp.setCompleted(true);
         return ResponseVO.successResponse(syncResp);
     }
+
+    /**
+     *  生成会话ID
+     *
+     * @param conversationType
+     * @param fromId
+     * @param toId
+     * @return
+     */
+    public String convertConversationId(Integer conversationType, String fromId, String toId) {
+        return conversationType + "_" + fromId + "_" + toId;
+    }
 }

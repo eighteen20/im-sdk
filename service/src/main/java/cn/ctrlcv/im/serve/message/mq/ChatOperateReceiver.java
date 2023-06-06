@@ -5,10 +5,12 @@ import cn.ctrlcv.im.common.enums.command.MessageCommand;
 import cn.ctrlcv.im.common.model.message.MessageContent;
 import cn.ctrlcv.im.common.model.message.MessageReadedContent;
 import cn.ctrlcv.im.common.model.message.MessageReceiverAckContent;
+import cn.ctrlcv.im.common.model.message.RecallMessageContent;
 import cn.ctrlcv.im.serve.message.service.MessageSyncService;
 import cn.ctrlcv.im.serve.message.service.P2pMessageService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
@@ -81,6 +83,11 @@ public class ChatOperateReceiver {
                 // 消息已读
                 MessageReadedContent readedContent = jsonObject.toJavaObject(MessageReadedContent.class);
                 messageSyncService.readedMark(readedContent);
+            } else if (command.equals(MessageCommand.MSG_RECALL.getCommand())) {
+                // 消息撤回
+                RecallMessageContent messageContent = JSON.parseObject(msg, new TypeReference<RecallMessageContent>() {
+                }.getType());
+                messageSyncService.recallMessage(messageContent);
             }
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {
