@@ -9,18 +9,25 @@ import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.UserSession;
 import cn.ctrlcv.im.serve.friendship.service.IFriendshipService;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
+import cn.ctrlcv.im.serve.user.model.request.PullFriendsOnlineStatusReq;
+import cn.ctrlcv.im.serve.user.model.request.PullUserOnlineStatusReq;
 import cn.ctrlcv.im.serve.user.model.request.SubscribeUserOnlineStatusReq;
 import cn.ctrlcv.im.serve.user.model.request.UserSetCustomStatusReq;
+import cn.ctrlcv.im.serve.user.model.response.UserOnlineStatusResp;
 import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.ctrlcv.im.serve.utils.UserSessionUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -137,4 +144,43 @@ public class UserStatusServiceImpl implements IUserStatusService {
 
         return ResponseVO.successResponse();
     }
+
+    @Override
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullFriendsOnlineStatus(PullFriendsOnlineStatusReq req) {
+        List<String> allFriendId = imFriendService.getAllFriendId(req.getOperator(), req.getAppId());
+        return ResponseVO.successResponse(getUserOnlineStatus(allFriendId, req.getAppId()));
+    }
+
+    @Override
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullUserOnlineStatus(PullUserOnlineStatusReq req) {
+        return ResponseVO.successResponse(getUserOnlineStatus(req.getUserList(), req.getAppId()));
+    }
+
+    /**
+     * 获取用户在线状态
+     *
+     * @param userList 用户ID列表
+     * @param appId    应用ID
+     * @return 用户在线状态
+     */
+    private Map<String, UserOnlineStatusResp> getUserOnlineStatus(List<String> userList, Integer appId) {
+        Map<String, UserOnlineStatusResp> result = new HashMap<>(userList.size());
+        for (String uid : userList) {
+
+            UserOnlineStatusResp resp = new UserOnlineStatusResp();
+            List<UserSession> userSession = userSessionUtils.getUserSession(appId, uid);
+            resp.setSession(userSession);
+            String userKey = appId + Constants.RedisKey.USER_CUSTOMER_STATUS + uid;
+            String s = stringRedisTemplate.opsForValue().get(userKey);
+            if (StringUtils.isNotBlank(s)) {
+                JSONObject parse = (JSONObject) JSON.parse(s);
+                resp.setCustomText(parse.getString("customText"));
+                resp.setCustomStatus(parse.getInteger("customStatus"));
+            }
+            result.put(uid, resp);
+        }
+        return result;
+    }
+
+
 }

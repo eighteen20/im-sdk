@@ -6,6 +6,7 @@ import cn.ctrlcv.im.common.route.RouteHandler;
 import cn.ctrlcv.im.common.route.RouteInfo;
 import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
 import cn.ctrlcv.im.serve.user.model.request.*;
+import cn.ctrlcv.im.serve.user.model.response.UserOnlineStatusResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
 import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.ZkUtil;
@@ -43,7 +44,7 @@ public class ImUserController {
     /**
      * 导入用户资料
      *
-     * @param req {@link ImportUserReq}
+     * @param req   {@link ImportUserReq}
      * @param appId 应用ID
      * @return {@link ResponseVO}
      */
@@ -57,7 +58,7 @@ public class ImUserController {
     /**
      * im的登录接口，返回im地址
      *
-     * @param req {@link LoginReq}
+     * @param req   {@link LoginReq}
      * @param appId 应用Id
      * @return {@link RouteInfo}
      */
@@ -86,7 +87,7 @@ public class ImUserController {
     /**
      * 获取用户的sequence
      *
-     * @param req {@link GetUserSequenceReq}
+     * @param req   {@link GetUserSequenceReq}
      * @param appId 应用ID
      * @return
      */
@@ -99,10 +100,9 @@ public class ImUserController {
     /**
      * 订阅用户在线状态
      *
-     * @param req {@link SubscribeUserOnlineStatusReq}
-     * @param appId 应用ID
+     * @param req        {@link SubscribeUserOnlineStatusReq}
+     * @param appId      应用ID
      * @param identifier 用户ID
-     *
      * @return {@link ResponseVO}
      */
     @PostMapping("/subscribeUserOnlineStatus")
@@ -115,9 +115,9 @@ public class ImUserController {
     /**
      * 用户设置自定义状态
      *
-     * @param req {@link UserSetCustomStatusReq}
-     * @param appId 应用ID
-     *              @param identifier 用户ID
+     * @param req        {@link UserSetCustomStatusReq}
+     * @param appId      应用ID
+     * @param identifier 用户ID
      * @return {@link ResponseVO}
      */
     @PostMapping("/setCustomStatus")
@@ -125,6 +125,36 @@ public class ImUserController {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.setCustomStatus(req);
+    }
+
+    /**
+     * 查询好友在线状态
+     *
+     * @param req        {@link PullFriendsOnlineStatusReq}
+     * @param appId      应用ID
+     * @param identifier 用户ID
+     * @return {@link Map}<{@link String}, {@link UserOnlineStatusResp}>
+     */
+    @GetMapping("/pullFriendsOnlineStatus")
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullFriendsOnlineStatus(@RequestBody @Validated PullFriendsOnlineStatusReq req, Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return this.userStatusService.pullFriendsOnlineStatus(req);
+    }
+
+    /**
+     * 查询用户在线状态
+     *
+     * @param req        {@link PullUserOnlineStatusReq}
+     * @param appId      应用ID
+     * @param identifier 用户ID
+     * @return {@link Map}<{@link String}, {@link UserOnlineStatusResp}>
+     */
+    @GetMapping("/pullUserOnlineStatus")
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullUserOnlineStatus(@RequestBody @Validated PullUserOnlineStatusReq req, Integer appId, String identifier) {
+        req.setAppId(appId);
+        req.setOperator(identifier);
+        return this.userStatusService.pullUserOnlineStatus(req);
     }
 
 
