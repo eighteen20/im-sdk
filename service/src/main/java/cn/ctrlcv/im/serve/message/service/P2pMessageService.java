@@ -3,6 +3,7 @@ package cn.ctrlcv.im.serve.message.service;
 import cn.ctrlcv.im.codec.pack.message.ChatMessageAck;
 import cn.ctrlcv.im.codec.pack.message.MessageReceiveServerAckPack;
 import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.command.MessageCommand;
@@ -12,8 +13,10 @@ import cn.ctrlcv.im.common.model.message.OfflineMessageContent;
 import cn.ctrlcv.im.serve.message.model.request.P2pSendMessageReq;
 import cn.ctrlcv.im.serve.message.model.response.SendMessageResp;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
+import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.ctrlcv.im.serve.utils.ConversationIdGenerate;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +50,12 @@ public class P2pMessageService {
 
     @Resource
     private RedisSeq redisSeq;
+
+    @Resource
+    private ImConfig imConfig;
+
+    @Resource
+    private CallbackService callbackService;
 
     /**
      * 线程池, 加快消息处理速度
@@ -86,6 +95,18 @@ public class P2pMessageService {
             return;
         }
 
+        //回调
+        ResponseVO responseVO = ResponseVO.successResponse();
+        if (imConfig.isSendMessageAfterCallback()) {
+            responseVO = callbackService.beforeCallback(messageContent.getAppId(), Constants.CallbackCommand.SEND_MESSAGE_BEFORE
+                    , JSONObject.toJSONString(messageContent));
+        }
+
+        if (!responseVO.isOk()) {
+            ack(messageContent, responseVO);
+            return;
+        }
+
         // key = appId + seq + (fromId + toId) / (groupId)
         Long seq = redisSeq.nextSeq(messageContent.getAppId() + ":" + Constants.SeqConstants.MESSAGE + ":" +
                 ConversationIdGenerate.generateP2PConversationId(messageContent.getFromId(), messageContent.getToId())
@@ -114,11 +135,29 @@ public class P2pMessageService {
                     // 发送接收确认给发送方，要带上是服务端发送的标志
                     this.receiveAck(messageContent);
                 }
+
+                if(imConfig.isSendMessageAfterCallback()){
+                    callbackService.callback(messageContent.getAppId(),Constants.CallbackCommand.SEND_MESSAGE_AFTER,
+                            JSONObject.toJSONString(messageContent));
+                }
+
+                log.info("消息处理完成：{}",messageContent.getMessageId());
             } catch (Exception e) {
                 log.error("P2P消息处理异常", e);
             }
         });
 
+    }
+
+    private void ack(MessageContent messageContent, ResponseVO responseVO) {
+        log.info("msg ack,msgId={},checkResult{}", messageContent.getMessageId(), responseVO.getCode());
+
+        ChatMessageAck chatMessageAck = new ChatMessageAck(messageContent.getMessageId(), messageContent.getMessageSequence());
+        responseVO.setData(chatMessageAck);
+        //發消息
+        messageProducer.sendToUser(messageContent.getFromId(), MessageCommand.MSG_ACK,
+                responseVO, messageContent
+        );
     }
 
 

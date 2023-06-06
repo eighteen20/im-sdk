@@ -72,6 +72,7 @@ public class ChatOperateReceiver {
                 // 处理消息
                 MessageContent messageContent = jsonObject.toJavaObject(MessageContent.class);
                 p2pMessageService.process(messageContent);
+                // TODO 可以开发消息监管功能，涉及敏感词汇、鉴黄等。可以通过MQ发送到监管系统，监管系统鉴定后，满足监管条件时，调用IM服务的接口，删除（撤回）消息
             } else if(command.equals(MessageCommand.MSG_RECEIVE_ACK.getCommand())) {
                 // 消息接收确认
                 MessageReceiverAckContent messageContent = jsonObject.toJavaObject(MessageReceiverAckContent.class);
