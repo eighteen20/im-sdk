@@ -2,7 +2,7 @@ package cn.ctrlcv.im.serve.message.service;
 
 import cn.ctrlcv.im.codec.pack.message.MessageReadedPack;
 import cn.ctrlcv.im.codec.pack.message.RecallMessageNotifyPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
@@ -29,7 +29,6 @@ import cn.ctrlcv.im.serve.utils.SnowflakeIdWorker;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.DefaultTypedTuple;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;

@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.serve.friendship.service.impl;
 
 import cn.ctrlcv.im.codec.pack.friendship.*;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.AllowFriendTypeEnum;

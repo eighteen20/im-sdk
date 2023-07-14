@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.user.controller;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.serve.user.dao.ImUserDataEntity;
 import cn.ctrlcv.im.serve.user.model.request.GetUserInfoReq;
 import cn.ctrlcv.im.serve.user.model.request.ModifyUserInfoReq;

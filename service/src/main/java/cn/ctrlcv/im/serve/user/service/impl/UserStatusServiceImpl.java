@@ -2,7 +2,7 @@ package cn.ctrlcv.im.serve.user.service.impl;
 
 import cn.ctrlcv.im.codec.pack.user.UserCustomStatusChangeNotifyPack;
 import cn.ctrlcv.im.codec.pack.user.UserStatusChangeNotifyPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.command.UserEventCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;

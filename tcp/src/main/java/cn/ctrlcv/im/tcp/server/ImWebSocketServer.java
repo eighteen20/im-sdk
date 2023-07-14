@@ -75,7 +75,7 @@ public class ImWebSocketServer {
     }
 
     public void start() {
-        this.bootstrap.bind(this.tcpConfig.getTcpPort());
+        this.bootstrap.bind(this.tcpConfig.getWebSocketPort());
         log.info(" ========== IM-webSocket 服务启动 =========");
     }
 

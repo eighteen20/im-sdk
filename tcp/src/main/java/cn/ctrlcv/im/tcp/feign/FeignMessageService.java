@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.tcp.feign;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.model.message.CheckSendMessageReq;
 import feign.Headers;
 import feign.RequestLine;

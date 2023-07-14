@@ -10,21 +10,23 @@ spring:
     url: jdbc:mysql://127.0.0.1:3306/im?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
     username: root
   redis:
-    host: 127.0.0.1
+    host: 101.43.196.93
     port: 6379
+    database: 0
+    password: LJMredis1211@
+    timeout: 60000
     jedis:
       pool:
         max-active: 100
         max-idle: 100
         max-wait: 1000
         min-idle: 10
-    password: abcde12345
   rabbitmq:
     host: 127.0.0.1
     port: 5672
 #    addresses: 127.0.0.1
-    username: admin
-    password: admin
+    username: guest
+    password: guest
     #    virtual-host:
     listener:
       simple:

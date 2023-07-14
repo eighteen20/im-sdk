@@ -33,8 +33,8 @@ public class SigApi {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        SigApi asd = new SigApi(10000, "123456");
-        String sign = asd.genUserSig("asd", 100000000);
+        SigApi asd = new SigApi(1000000, "abcdefghijklmnopqrstuvwxyz");
+        String sign = asd.genUserSig("10", 1000000000L);
         JSONObject jsonObject = decodeUserSig(sign);
         System.out.println("sign:" + sign);
         System.out.println("decoder:" + jsonObject.toString());

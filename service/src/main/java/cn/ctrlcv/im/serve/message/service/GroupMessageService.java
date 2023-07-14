@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.serve.message.service;
 
 import cn.ctrlcv.im.codec.pack.message.ChatMessageAck;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ConversationTypeEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;

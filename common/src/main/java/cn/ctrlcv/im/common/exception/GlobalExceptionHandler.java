@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.common.exception;
 
-import cn.ctrlcv.im.common.BaseErrorCodeEnum;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.enums.BaseErrorCodeEnum;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;

@@ -4,7 +4,7 @@ import cn.ctrlcv.im.codec.pack.group.AddGroupMemberPack;
 import cn.ctrlcv.im.codec.pack.group.GroupMemberSpeakPack;
 import cn.ctrlcv.im.codec.pack.group.RemoveGroupMemberPack;
 import cn.ctrlcv.im.codec.pack.group.UpdateGroupMemberPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.GroupErrorCodeEnum;

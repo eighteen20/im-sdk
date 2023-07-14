@@ -2,7 +2,7 @@ package cn.ctrlcv.im.serve.friendship.service.impl;
 
 import cn.ctrlcv.im.codec.pack.friendship.ApproveFriendRequestPack;
 import cn.ctrlcv.im.codec.pack.friendship.ReadAllFriendRequestPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ApproveFriendRequestStatusEnum;
 import cn.ctrlcv.im.common.enums.FriendShipErrorCodeEnum;

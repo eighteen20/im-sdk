@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.serve.interceptor;
 
-import cn.ctrlcv.im.common.BaseErrorCodeEnum;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.enums.BaseErrorCodeEnum;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.GateWayErrorCodeEnum;

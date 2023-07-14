@@ -23,8 +23,8 @@ im:
     host: 127.0.0.1
     port: 10040
     virtualHost: /
-    userName: admin
-    password: admin
+    userName: guest
+    password: guest
 
   zkConfig:
     zkAddr: 127.0.0.1:2181

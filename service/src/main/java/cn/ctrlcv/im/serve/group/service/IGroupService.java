@@ -1,13 +1,11 @@
 package cn.ctrlcv.im.serve.group.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetGroupResp;
 import cn.ctrlcv.im.serve.group.model.resp.GetJoinedGroupResp;
-
-import java.util.Collection;
 
 /**
  * interface Name: IGroupService

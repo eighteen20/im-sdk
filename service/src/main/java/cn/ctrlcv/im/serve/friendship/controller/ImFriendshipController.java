@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.friendship.controller;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.common.model.SyncResp;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;

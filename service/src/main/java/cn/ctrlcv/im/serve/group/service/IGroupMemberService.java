@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.group.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.serve.group.model.dto.GroupMemberDTO;
 import cn.ctrlcv.im.serve.group.model.request.*;
 import cn.ctrlcv.im.serve.group.model.resp.GetRoleInGroupResp;

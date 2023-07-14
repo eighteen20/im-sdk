@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.friendship.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.serve.friendship.model.request.AddFriendShipGroupMemberReq;
 import cn.ctrlcv.im.serve.friendship.model.request.DeleteFriendShipGroupMemberReq;
 

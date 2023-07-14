@@ -1,4 +1,4 @@
-package cn.ctrlcv.im.common;
+package cn.ctrlcv.im.common.model;
 
 import cn.ctrlcv.im.common.exception.ApplicationExceptionEnum;
 import lombok.Data;

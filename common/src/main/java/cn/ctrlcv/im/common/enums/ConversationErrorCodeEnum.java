@@ -14,7 +14,7 @@ public enum ConversationErrorCodeEnum  implements ApplicationExceptionEnum {
     /**
      * 会话修改参数错误
      */
-    CONVERSATION_UPDATE_PARAM_ERROR(50000, "會話修改參數錯誤"),
+    CONVERSATION_UPDATE_PARAM_ERROR(50000, "会话修改参数错误"),
 
     ;
 

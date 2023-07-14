@@ -2,7 +2,7 @@ package cn.ctrlcv.im.serve.conversation.service;
 
 import cn.ctrlcv.im.codec.pack.conversation.DeleteConversationPack;
 import cn.ctrlcv.im.codec.pack.conversation.UpdateConversationPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ConversationErrorCodeEnum;
@@ -16,7 +16,6 @@ import cn.ctrlcv.im.serve.conversation.dao.ImConversationSetEntity;
 import cn.ctrlcv.im.serve.conversation.dao.mapper.ImConversationSetMapper;
 import cn.ctrlcv.im.serve.conversation.model.request.DeleteConversationReq;
 import cn.ctrlcv.im.serve.conversation.model.request.UpdateConversationReq;
-import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import cn.ctrlcv.im.serve.utils.WriteUserSeq;
@@ -195,7 +194,7 @@ public class ConversationService {
 
         List<ImConversationSetEntity> entityList = conversationSetMapper.selectList(query);
 
-        if (CollectionUtils.isEmpty(entityList)) {
+        if (!CollectionUtils.isEmpty(entityList)) {
             ImConversationSetEntity lastEntity = entityList.get(entityList.size() - 1);
             Long maxConversationSetSequence = conversationSetMapper.getMaxFriendSequence(req.getAppId(), req.getOperator());
             syncResp.setMaxSequence(maxConversationSetSequence);

@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.message.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.enums.*;
 import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;

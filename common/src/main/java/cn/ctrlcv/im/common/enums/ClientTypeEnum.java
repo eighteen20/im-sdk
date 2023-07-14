@@ -1,4 +1,4 @@
-package cn.ctrlcv.im.common;
+package cn.ctrlcv.im.common.enums;
 
 /**
  * enum Name: ClientTypeEnum

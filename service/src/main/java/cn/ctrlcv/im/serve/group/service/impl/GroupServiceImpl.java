@@ -3,7 +3,7 @@ package cn.ctrlcv.im.serve.group.service.impl;
 import cn.ctrlcv.im.codec.pack.group.CreateGroupPack;
 import cn.ctrlcv.im.codec.pack.group.DestroyGroupPack;
 import cn.ctrlcv.im.codec.pack.group.UpdateGroupInfoPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.GroupErrorCodeEnum;
@@ -12,11 +12,9 @@ import cn.ctrlcv.im.common.enums.GroupStatusEnum;
 import cn.ctrlcv.im.common.enums.GroupTypeEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
-import cn.ctrlcv.im.common.exception.ApplicationExceptionEnum;
 import cn.ctrlcv.im.common.model.ClientInfo;
 import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.common.model.SyncResp;
-import cn.ctrlcv.im.serve.friendship.dao.ImFriendshipEntity;
 import cn.ctrlcv.im.serve.group.dao.ImGroupEntity;
 import cn.ctrlcv.im.serve.group.dao.mapper.ImGroupMapper;
 import cn.ctrlcv.im.serve.group.model.callback.DestroyGroupAfterCallbackDTO;
@@ -30,8 +28,8 @@ import cn.ctrlcv.im.serve.group.service.IGroupService;
 import cn.ctrlcv.im.serve.sequence.RedisSeq;
 import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.ctrlcv.im.serve.utils.GroupMessageProducer;
-import cn.ctrlcv.im.serve.utils.WriteUserSeq;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -468,7 +466,11 @@ public class GroupServiceImpl implements IGroupService {
         if (!joinedGroupIdsResp.isOk()) {
             throw new ApplicationException(GroupErrorCodeEnum.FAILED_TO_QUERY_GROUP_INFO);
         }
+        List<String> data = joinedGroupIdsResp.getData();
+        if (CollectionUtil.isEmpty(data)) {
+            return -1L;
+        }
 
-        return groupMapper.getMaxSequence(appId, joinedGroupIdsResp.getData());
+        return groupMapper.getMaxSequence(appId, data);
     }
 }

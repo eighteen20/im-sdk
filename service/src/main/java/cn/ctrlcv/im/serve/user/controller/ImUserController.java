@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.serve.user.controller;
 
-import cn.ctrlcv.im.common.ClientTypeEnum;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.enums.ClientTypeEnum;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.route.RouteHandler;
 import cn.ctrlcv.im.common.route.RouteInfo;
 import cn.ctrlcv.im.common.utils.RouteInfoParseUtil;
@@ -106,7 +106,8 @@ public class ImUserController {
      * @return {@link ResponseVO}
      */
     @PostMapping("/subscribeUserOnlineStatus")
-    public ResponseVO<?> subscribeUserOnlineStatus(@RequestBody @Validated SubscribeUserOnlineStatusReq req, Integer appId, String identifier) {
+    public ResponseVO<?> subscribeUserOnlineStatus(@RequestBody @Validated SubscribeUserOnlineStatusReq req,
+                                                   Integer appId, String identifier) {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.subscribeUserOnlineStatus(req);
@@ -121,7 +122,8 @@ public class ImUserController {
      * @return {@link ResponseVO}
      */
     @PostMapping("/setCustomStatus")
-    public ResponseVO<?> setCustomStatus(@RequestBody @Validated UserSetCustomStatusReq req, Integer appId, String identifier) {
+    public ResponseVO<?> setCustomStatus(@RequestBody @Validated UserSetCustomStatusReq req, Integer appId,
+                                         String identifier) {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.setCustomStatus(req);
@@ -136,7 +138,8 @@ public class ImUserController {
      * @return {@link Map}<{@link String}, {@link UserOnlineStatusResp}>
      */
     @GetMapping("/pullFriendsOnlineStatus")
-    public ResponseVO<Map<String, UserOnlineStatusResp>> pullFriendsOnlineStatus(@RequestBody @Validated PullFriendsOnlineStatusReq req, Integer appId, String identifier) {
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullFriendsOnlineStatus(
+            @RequestBody @Validated PullFriendsOnlineStatusReq req, Integer appId, String identifier) {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.pullFriendsOnlineStatus(req);
@@ -151,7 +154,8 @@ public class ImUserController {
      * @return {@link Map}<{@link String}, {@link UserOnlineStatusResp}>
      */
     @GetMapping("/pullUserOnlineStatus")
-    public ResponseVO<Map<String, UserOnlineStatusResp>> pullUserOnlineStatus(@RequestBody @Validated PullUserOnlineStatusReq req, Integer appId, String identifier) {
+    public ResponseVO<Map<String, UserOnlineStatusResp>> pullUserOnlineStatus(
+            @RequestBody @Validated PullUserOnlineStatusReq req, Integer appId, String identifier) {
         req.setAppId(appId);
         req.setOperator(identifier);
         return this.userStatusService.pullUserOnlineStatus(req);

@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.tcp.receiver;
 
 import cn.ctrlcv.im.codec.pack.MessagePack;
-import cn.ctrlcv.im.common.ClientTypeEnum;
+import cn.ctrlcv.im.common.enums.ClientTypeEnum;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.DeviceMultiLoginEnum;
 import cn.ctrlcv.im.common.enums.command.SystemCommand;
@@ -43,64 +43,61 @@ public class UserLoginMessageListener {
 
     public void listenerUserLogin() {
         RTopic topic = RedisManager.getRedissonClient().getTopic(Constants.RedisKey.USER_LOGIN_CHANNEL);
-        topic.addListener(String.class, new MessageListener<String>() {
-            @Override
-            public void onMessage(CharSequence charSequence, String msg) {
-                log.info(" ========== 监听到用户上线，用户信息：{} ========== ", msg);
-                UserClientDTO dto = JSONObject.parseObject(msg, UserClientDTO.class);
-                List<NioSocketChannel> channels = SessionSocketHolder.get(dto.getAppId(), dto.getUserId());
+        topic.addListener(String.class, (charSequence, msg) -> {
+            log.info(" ========== 监听到用户上线，用户信息：{} ========== ", msg);
+            UserClientDTO dto = JSONObject.parseObject(msg, UserClientDTO.class);
+            List<NioSocketChannel> channels = SessionSocketHolder.get(dto.getAppId(), dto.getUserId());
 
-                String unique = dto.getClientType() + ":" + dto.getImei();
+            String unique = dto.getClientType() + ":" + dto.getImei();
 
-                for (NioSocketChannel channel : channels) {
-                    Integer clientType = (Integer) channel.attr(AttributeKey.valueOf(Constants.CLIENT_TYPE)).get();
-                    String imei = (String) channel.attr(AttributeKey.valueOf(Constants.IMEI)).get();
+            for (NioSocketChannel channel : channels) {
+                Integer clientType = (Integer) channel.attr(AttributeKey.valueOf(Constants.CLIENT_TYPE)).get();
+                String imei = (String) channel.attr(AttributeKey.valueOf(Constants.IMEI)).get();
 
-                    if (loginModel == DeviceMultiLoginEnum.ONE.getLoginMode()) {
+                if (loginModel == DeviceMultiLoginEnum.ONE.getLoginMode()) {
 
-                        if (!(clientType + ":" + imei).equals(unique)) {
-                            // 踢掉客户端
-                            notifyOffline(channel);
-                        }
-
-                    } else if (loginModel == DeviceMultiLoginEnum.TWO.getLoginMode()) {
-                        if (ClientTypeEnum.WEB.getCode() == dto.getClientType()) {
-                            continue;
-                        }
-                        if (ClientTypeEnum.WEB.getCode() == clientType) {
-                            continue;
-                        }
-
-                        if (!(clientType + ":" + imei).equals(unique)) {
-                            // 踢掉客户端
-                            notifyOffline(channel);
-                        }
-                    } else if (loginModel == DeviceMultiLoginEnum.THREE.getLoginMode()) {
-                        if (ClientTypeEnum.WEB.getCode() == dto.getClientType()) {
-                            continue;
-                        }
-                        // 是否是 同类型客户端（eg: ios 和 Android 属于通断）
-                        boolean isSameClient = false;
-
-                        boolean oldPhone = ClientTypeEnum.IOS.getCode() == clientType || ClientTypeEnum.ANDROID.getCode() == clientType;
-                        boolean newPhone = ClientTypeEnum.IOS.getCode() == dto.getClientType() || ClientTypeEnum.ANDROID.getCode() == dto.getClientType();
-                        if (oldPhone && newPhone) {
-                            // 已登录的客户端 和 新登录的都是手机端
-                            isSameClient = true;
-                        }
-                        boolean oldPc = ClientTypeEnum.WINDOWS.getCode() == clientType || ClientTypeEnum.MAC.getCode() == clientType;
-                        boolean newPc = ClientTypeEnum.WINDOWS.getCode() == dto.getClientType() || ClientTypeEnum.MAC.getCode() == dto.getClientType();
-                        if (oldPhone && newPhone) {
-                            // 已登录的客户端 和 新登录的都是PC端
-                            isSameClient = true;
-                        }
-
-                        if (isSameClient && !(clientType + ":" + imei).equals(unique)) {
-                            // 踢掉客户端
-                            notifyOffline(channel);
-                        }
-
+                    if (!(clientType + ":" + imei).equals(unique)) {
+                        // 踢掉客户端
+                        notifyOffline(channel);
                     }
+
+                } else if (loginModel == DeviceMultiLoginEnum.TWO.getLoginMode()) {
+                    if (ClientTypeEnum.WEB.getCode() == dto.getClientType()) {
+                        continue;
+                    }
+                    if (ClientTypeEnum.WEB.getCode() == clientType) {
+                        continue;
+                    }
+
+                    if (!(clientType + ":" + imei).equals(unique)) {
+                        // 踢掉客户端
+                        notifyOffline(channel);
+                    }
+                } else if (loginModel == DeviceMultiLoginEnum.THREE.getLoginMode()) {
+                    if (ClientTypeEnum.WEB.getCode() == dto.getClientType()) {
+                        continue;
+                    }
+                    // 是否是 同类型客户端（eg: ios 和 Android 属于通断）
+                    boolean isSameClient = false;
+
+                    boolean oldPhone = ClientTypeEnum.IOS.getCode() == clientType || ClientTypeEnum.ANDROID.getCode() == clientType;
+                    boolean newPhone = ClientTypeEnum.IOS.getCode() == dto.getClientType() || ClientTypeEnum.ANDROID.getCode() == dto.getClientType();
+                    if (oldPhone && newPhone) {
+                        // 已登录的客户端 和 新登录的都是手机端
+                        isSameClient = true;
+                    }
+                    boolean oldPc = ClientTypeEnum.WINDOWS.getCode() == clientType || ClientTypeEnum.MAC.getCode() == clientType;
+                    boolean newPc = ClientTypeEnum.WINDOWS.getCode() == dto.getClientType() || ClientTypeEnum.MAC.getCode() == dto.getClientType();
+                    if (oldPhone && newPhone) {
+                        // 已登录的客户端 和 新登录的都是PC端
+                        isSameClient = true;
+                    }
+
+                    if (isSameClient && !(clientType + ":" + imei).equals(unique)) {
+                        // 踢掉客户端
+                        notifyOffline(channel);
+                    }
+
                 }
             }
         });

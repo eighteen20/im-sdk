@@ -6,7 +6,7 @@ import cn.ctrlcv.im.codec.pack.MessagePack;
 import cn.ctrlcv.im.codec.pack.user.LoginAckPack;
 import cn.ctrlcv.im.codec.pack.user.UserStatusChangeNotifyPack;
 import cn.ctrlcv.im.codec.proto.Message;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.ImConnectStatusEnum;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;

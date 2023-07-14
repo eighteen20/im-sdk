@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.common.utils;
 
-import cn.ctrlcv.im.common.BaseErrorCodeEnum;
+import cn.ctrlcv.im.common.enums.BaseErrorCodeEnum;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.route.RouteInfo;
 

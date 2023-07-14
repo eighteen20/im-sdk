@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.user.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.serve.user.model.UserStatusChangeNotifyContent;
 import cn.ctrlcv.im.serve.user.model.request.PullFriendsOnlineStatusReq;
 import cn.ctrlcv.im.serve.user.model.request.PullUserOnlineStatusReq;

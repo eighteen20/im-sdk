@@ -3,7 +3,7 @@ package cn.ctrlcv.im.serve.utils;
 import cn.ctrlcv.im.codec.pack.group.AddGroupMemberPack;
 import cn.ctrlcv.im.codec.pack.group.RemoveGroupMemberPack;
 import cn.ctrlcv.im.codec.pack.group.UpdateGroupMemberPack;
-import cn.ctrlcv.im.common.ClientTypeEnum;
+import cn.ctrlcv.im.common.enums.ClientTypeEnum;
 import cn.ctrlcv.im.common.enums.command.Command;
 import cn.ctrlcv.im.common.enums.command.GroupEventCommand;
 import cn.ctrlcv.im.common.model.ClientInfo;

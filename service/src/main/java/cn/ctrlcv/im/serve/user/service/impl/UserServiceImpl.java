@@ -1,7 +1,7 @@
 package cn.ctrlcv.im.serve.user.service.impl;
 
 import cn.ctrlcv.im.codec.pack.user.UserModifyPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.constant.Constants;
 import cn.ctrlcv.im.common.enums.DelFlagEnum;
@@ -15,7 +15,6 @@ import cn.ctrlcv.im.serve.user.model.request.*;
 import cn.ctrlcv.im.serve.user.model.response.GetUserInfoResp;
 import cn.ctrlcv.im.serve.user.model.response.ImportUserResp;
 import cn.ctrlcv.im.serve.user.service.IUserService;
-import cn.ctrlcv.im.serve.user.service.IUserStatusService;
 import cn.ctrlcv.im.serve.utils.CallbackService;
 import cn.ctrlcv.im.serve.utils.MessageProducer;
 import com.alibaba.fastjson.JSONObject;
@@ -210,7 +209,10 @@ public class UserServiceImpl implements IUserService {
         Map<Object, Object> map = redisTemplate.opsForHash()
                 .entries(req.getAppId() + Constants.RedisKey.SEQ_PREFIX + req.getUserId());
         Long groupSeq = groupService.getUserGroupMaxSequence(req.getAppId(), req.getUserId());
-        map.put(Constants.SeqConstants.GROUP, groupSeq);
+        if (groupSeq != -1L) {
+            map.put(Constants.SeqConstants.GROUP, groupSeq);
+        }
+
         return ResponseVO.successResponse(map);
     }
 }

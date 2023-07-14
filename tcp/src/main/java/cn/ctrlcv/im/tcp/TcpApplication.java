@@ -58,6 +58,7 @@ public class TcpApplication {
     private static final ExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     public static void registerZk(BootstrapConfig config) throws UnknownHostException {
+//        String hostAddress = "127.0.0.1";
         String hostAddress = InetAddress.getLocalHost().getHostAddress();
         ZkClient zkClient = new ZkClient(config.getIm().getZkConfig().getZkAddr(),
                 config.getIm().getZkConfig().getZkConnectTimeOut());

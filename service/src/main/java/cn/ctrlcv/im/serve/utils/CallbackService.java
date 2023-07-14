@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.utils;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.config.ImConfig;
 import cn.ctrlcv.im.common.utils.HttpRequestUtils;
 import lombok.extern.slf4j.Slf4j;

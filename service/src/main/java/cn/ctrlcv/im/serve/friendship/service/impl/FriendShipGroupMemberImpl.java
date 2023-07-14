@@ -2,7 +2,7 @@ package cn.ctrlcv.im.serve.friendship.service.impl;
 
 import cn.ctrlcv.im.codec.pack.friendship.AddFriendGroupMemberPack;
 import cn.ctrlcv.im.codec.pack.friendship.DeleteFriendGroupMemberPack;
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.enums.command.FriendshipEventCommand;
 import cn.ctrlcv.im.common.exception.ApplicationException;
 import cn.ctrlcv.im.common.model.ClientInfo;

@@ -1,6 +1,6 @@
 package cn.ctrlcv.im.serve.friendship.service;
 
-import cn.ctrlcv.im.common.ResponseVO;
+import cn.ctrlcv.im.common.model.ResponseVO;
 import cn.ctrlcv.im.common.model.RequestBase;
 import cn.ctrlcv.im.common.model.SyncReq;
 import cn.ctrlcv.im.common.model.SyncResp;
